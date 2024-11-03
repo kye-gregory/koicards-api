@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -14,6 +13,7 @@ import (
 	"time"
 
 	"github.com/kye-gregory/koicards-api/internal/server"
+	"github.com/kye-gregory/koicards-api/pkg/errors"
 )
 
 func run(
@@ -24,6 +24,8 @@ func run(
 	stdout 	io.Writer,
 	stderr 	io.Writer,
 ) error {
+	// Initialise
+	var errStack errors.ErrorStack
 	log.SetOutput(stderr)
 	
 	// Watch System Interrupt
@@ -41,7 +43,8 @@ func run(
 	go func() {
 		log.Println("Listening for requests on", httpServer.Addr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Printf("ListenAndServe error: %v", err)
+			errMsg := fmt.Errorf("ListenAndServe error: %v", err)
+			errStack.Add(errMsg)
 			cancel()
 		}
 	}()
@@ -63,12 +66,16 @@ func run(
 		// Shutdown Server
 		log.Println("Server shutting down...")
 		if err := httpServer.Shutdown(shutdownCtx); err != nil {
-			log.Printf("error shutting down http server: %s", err)
+			errMsg := fmt.Errorf("error shutting down http server: %s", err)
+			errStack.Add(errMsg)
 		}
 	}()
-
+	
 	// Exit Run
 	wg.Wait()
+
+	// Return Any Accumulated Errors
+	if len(errStack.Errors) > 0 {return &errStack }
 	return nil
 }
 
