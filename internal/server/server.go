@@ -5,9 +5,18 @@ import (
 )
 
 func NewServer() http.Handler {
+	// Create Server Mux
 	mux := http.NewServeMux()
+
+	// Setup Routes
 	RegisterRoutes(mux)
 
+	// Add Global Middleware
+	middlewareChain := MiddlewareChain(
+		RequestLoggerMiddleware,
+		RequireAuthMiddleware,
+	)
 
-	return mux
+	// Return Handler w/ middleware
+	return middlewareChain(mux)
 }
