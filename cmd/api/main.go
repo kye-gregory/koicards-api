@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sync"
 	"time"
 
 	"github.com/kye-gregory/koicards-api/internal/debug"
@@ -29,8 +28,8 @@ func run(
 	log.SetOutput(stderr)
 	var errStack debug.ErrorStack
 	
-	// Watch System Interrupt
-	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
+	// Watch System Interrupt & Kill Signals
+	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill)
     defer cancel()
 
 	// Create The Server
@@ -51,29 +50,17 @@ func run(
 	}()
 
 	// Finalize Server
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	<-ctx.Done()
 
-		// Catch System Interrupt
-		<-ctx.Done()
+	// Add Shutdown Timeout
+	shutdownCtx, _ := context.WithTimeout(context.Background(), 10 * time.Second)
 
-		// Add Shutdown Timeout
-		shutdownCtx := context.Background()
-		shutdownCtx, cancel := context.WithTimeout(shutdownCtx, 10 * time.Second)
-		defer cancel()
-
-		// Shutdown Server
-		log.Println("Server shutting down...")
-		if err := httpServer.Shutdown(shutdownCtx); err != nil {
-			errMsg := fmt.Errorf("%s", err)
-			errStack.Add(errMsg)
-		}
-	}()
-	
-	// Exit Run
-	wg.Wait()
+	// Shutdown Server
+	log.Println("Server shutting down...")
+	if err := httpServer.Shutdown(shutdownCtx); err != nil {
+		errMsg := fmt.Errorf("%s", err)
+		errStack.Add(errMsg)
+	}
 
 	// Return Any Accumulated Errors
 	if len(errStack.Errors) > 0 {return &errStack }
