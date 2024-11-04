@@ -7,11 +7,11 @@ func ValidateEmail(s string) error {
 }
 
 func ValidateUsername(s string) error {
-	if (len(s) < 8) {return errors.New("username length must be more than 8 characters")}
+	if (len(s) < 8) {return errors.New("username length must be at least 8 characters")}
 	return nil
 }
 
 func ValidatePassword(s string) error {
-	if (len(s) < 8) {return errors.New("password length must be more than 8 characters")}
+	if (len(s) < 8) {return errors.New("password length must be at least 8 characters")}
 	return nil
 }
