@@ -15,7 +15,7 @@ func HandleUserRegister(w http.ResponseWriter, r *http.Request) {
 
 	// Validate Form Data
 	if (len(username)<8 || len(password)<8) {
-		err := http.StatusAccepted
+		err := http.StatusBadRequest
 		http.Error(w, "invalid username or password", err)
 		return
 	}
