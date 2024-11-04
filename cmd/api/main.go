@@ -25,8 +25,9 @@ func run(
 	stderr 	io.Writer,
 ) error {
 	// Initialise
-	var errStack debug.ErrorStack
+	time.Local = time.UTC
 	log.SetOutput(stderr)
+	var errStack debug.ErrorStack
 	
 	// Watch System Interrupt
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
@@ -43,7 +44,7 @@ func run(
 	go func() {
 		log.Println("Listening for requests on", httpServer.Addr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			errMsg := fmt.Errorf("ListenAndServe error: %v", err)
+			errMsg := fmt.Errorf("%v", err)
 			errStack.Add(errMsg)
 			cancel()
 		}
@@ -66,7 +67,7 @@ func run(
 		// Shutdown Server
 		log.Println("Server shutting down...")
 		if err := httpServer.Shutdown(shutdownCtx); err != nil {
-			errMsg := fmt.Errorf("error shutting down http server: %s", err)
+			errMsg := fmt.Errorf("%s", err)
 			errStack.Add(errMsg)
 		}
 	}()

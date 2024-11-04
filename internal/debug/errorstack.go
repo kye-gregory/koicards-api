@@ -2,6 +2,7 @@ package debug
 
 import (
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -13,7 +14,8 @@ type ErrorStack struct {
 // Appends an error to the ErrorStack.
 func (m *ErrorStack) Add(err error) {
 	if err != nil {
-		timestampedErr := fmt.Errorf("%s: %w", time.Now().Format(time.RFC3339), err)
+		log.Println("ERROR", err)
+		timestampedErr := fmt.Errorf("%s ERROR %w", time.Now().Format(TIME_FORMAT), err)
 		m.Errors = append(m.Errors, timestampedErr)
 	}
 }
@@ -21,11 +23,11 @@ func (m *ErrorStack) Add(err error) {
 // Implements the error interface for ErrorStack.
 func (m *ErrorStack) Error() string {
 	if len(m.Errors) == 0 {
-		return "no errors"
+		return ""
 	}
-	msg := "multiple errors:"
+	msg := "\nErrors:"
 	for _, err := range m.Errors {
 		msg += "\n - " + err.Error()
 	}
-	return msg
+	return msg + "\n"
 }
