@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/kye-gregory/koicards-api/internal/debug"
 	"github.com/kye-gregory/koicards-api/internal/server"
-	"github.com/kye-gregory/koicards-api/pkg/errors"
 )
 
 func run(
@@ -25,7 +25,7 @@ func run(
 	stderr 	io.Writer,
 ) error {
 	// Initialise
-	var errStack errors.ErrorStack
+	var errStack debug.ErrorStack
 	log.SetOutput(stderr)
 	
 	// Watch System Interrupt
