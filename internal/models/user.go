@@ -1,4 +1,4 @@
-package server
+package models
 
 // Using Placeholder Structs As Mock DB
 type Login struct {
@@ -6,5 +6,3 @@ type Login struct {
 	SessionToken string
 	CSRFToken string
 }
-
-var users = map[string]Login{}

@@ -11,8 +11,8 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/kye-gregory/koicards-api/internal/api"
 	"github.com/kye-gregory/koicards-api/internal/debug"
-	"github.com/kye-gregory/koicards-api/internal/server"
 )
 
 func run(
@@ -33,7 +33,7 @@ func run(
     defer cancel()
 
 	// Create The Server
-	handler := server.NewServer()
+	handler := api.NewServer()
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort("localhost", "8080"),
 		Handler: handler,
