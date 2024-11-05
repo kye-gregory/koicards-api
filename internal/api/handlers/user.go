@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/kye-gregory/koicards-api/internal/models"
 	"github.com/kye-gregory/koicards-api/internal/services"
 )
 
@@ -15,29 +16,21 @@ func NewUserHandler(s *services.UserService) *UserHandler {
     return &UserHandler{service: s}
 }
 
-func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-
-	// Validate Form Data
-	if (len(username)<8 || len(password)<8) {
-		err := http.StatusBadRequest
-		http.Error(w, "invalid username or password", err)
-		return
+func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {	
+	// Create User Struct
+	user := models.User {
+		Email: 		r.FormValue("email"),
+		Username: 	r.FormValue("username"),
+		Password: 	r.FormValue("password"),
 	}
 
-	// Check If User Exists
-	// if _, ok := store.Users[username]; ok {
-	// 	err := http.StatusConflict
-	// 	http.Error(w, "user already exists", err)
-	// 	return
-	// }
+	// Validate
+	err := h.service.ValidateUser(&user)
+	if ReturnHttpError(w, err, http.StatusBadRequest) { return }
 
-	// Update Storage
-	// hashedPassword, _ := auth.Hash(password)
-	// storage.Users[username] = models.Login{
-	// 	HashedPassword: hashedPassword,
-	// }
+	// Register
+	err = h.service.RegisterUser(&user)
+	if ReturnHttpError(w, err, http.StatusConflict) { return }
 
 	// Return Success
 	w.Header().Set("Content-Type", "text/plain")

@@ -10,11 +10,13 @@ func NewUserStore() *UserStore {
 	return &UserStore{users: make(map[int]*models.User)}
 }
 
-func (repo *UserStore) UserExists(email string) (bool, error) {
+func (s *UserStore) UserExists(email string) (bool, error) {
 	return false, nil
 }
 
-func (repo *UserStore) CreateUser(user *models.User) error {
-	repo.users[user.ID] = user
+func (s *UserStore) CreateUser(user *models.User) error {
+	id := len(s.users)
+	user.ID = id
+	s.users[id] = user
 	return nil
 }
