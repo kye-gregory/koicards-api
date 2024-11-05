@@ -37,3 +37,9 @@ func (s *Stack) Error() string {
 func (s *Stack) Clear() {
 	s.Errors = nil
 }
+
+// Returns either error or nil
+func (s *Stack) Return() error {
+	if (len(s.Errors) > 0) { return s }
+	return nil
+}
