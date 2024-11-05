@@ -49,7 +49,7 @@ func run(
 		}
 	}()
 
-	// Finalize Server
+	// Wait For Server
 	<-ctx.Done()
 
 	// Add Shutdown Timeout
