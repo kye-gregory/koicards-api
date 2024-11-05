@@ -6,6 +6,7 @@ import (
 
 	"github.com/kye-gregory/koicards-api/internal/models"
 	"github.com/kye-gregory/koicards-api/internal/services"
+	e "github.com/kye-gregory/koicards-api/pkg/errors"
 )
 
 type UserHandler struct {
@@ -26,11 +27,11 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	// Validate
 	err := h.service.ValidateUser(&user)
-	if ReturnHttpError(w, err, http.StatusBadRequest) { return }
+	if e.ReturnHttpError(w, err, http.StatusBadRequest) { return }
 
 	// Register
 	err = h.service.RegisterUser(&user)
-	if ReturnHttpError(w, err, http.StatusConflict) { return }
+	if e.ReturnHttpError(w, err, http.StatusConflict) { return }
 
 	// Return Success
 	w.Header().Set("Content-Type", "text/plain")
