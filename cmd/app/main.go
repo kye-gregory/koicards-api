@@ -13,7 +13,10 @@ import (
 
 	"github.com/kye-gregory/koicards-api/internal/api"
 	"github.com/kye-gregory/koicards-api/internal/debug"
+	"github.com/kye-gregory/koicards-api/internal/store"
+	"github.com/kye-gregory/koicards-api/internal/store/mock"
 )
+
 
 func run(
 	ctx    	context.Context,
@@ -23,7 +26,7 @@ func run(
 	stdout 	io.Writer,
 	stderr 	io.Writer,
 ) error {
-	// Initialise
+	// Initialise Environment
 	time.Local = time.UTC
 	log.SetOutput(stderr)
 	var errStack debug.ErrorStack
@@ -32,11 +35,15 @@ func run(
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill)
     defer cancel()
 
+	// Initialise App
+	userStore := mock.NewUserStore()
+	db := store.NewDatabase(userStore)
+	app := api.NewApp(db)
+
 	// Create The Server
-	handler := api.NewServer()
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort("localhost", "8080"),
-		Handler: handler,
+		Handler: api.NewRouter(app),
 	}
 
 	// Run Server

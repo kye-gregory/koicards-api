@@ -4,12 +4,18 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/kye-gregory/koicards-api/internal/auth"
-	"github.com/kye-gregory/koicards-api/internal/models"
-	"github.com/kye-gregory/koicards-api/internal/storage"
+	"github.com/kye-gregory/koicards-api/internal/services"
 )
 
-func HandleUserRegister(w http.ResponseWriter, r *http.Request) {
+type UserHandler struct {
+    service *services.UserService
+}
+
+func NewUserHandler(s *services.UserService) *UserHandler {
+    return &UserHandler{service: s}
+}
+
+func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
@@ -21,17 +27,17 @@ func HandleUserRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check If User Exists
-	if _, ok := storage.Users[username]; ok {
-		err := http.StatusConflict
-		http.Error(w, "user already exists", err)
-		return
-	}
+	// if _, ok := store.Users[username]; ok {
+	// 	err := http.StatusConflict
+	// 	http.Error(w, "user already exists", err)
+	// 	return
+	// }
 
 	// Update Storage
-	hashedPassword, _ := auth.Hash(password)
-	storage.Users[username] = models.Login{
-		HashedPassword: hashedPassword,
-	}
+	// hashedPassword, _ := auth.Hash(password)
+	// storage.Users[username] = models.Login{
+	// 	HashedPassword: hashedPassword,
+	// }
 
 	// Return Success
 	w.Header().Set("Content-Type", "text/plain")

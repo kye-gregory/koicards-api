@@ -6,6 +6,7 @@ import (
 	h "github.com/kye-gregory/koicards-api/internal/api/handlers"
 )
 
-func RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /register", 	h.HandleUserRegister)
+func RegisterRoutes(app *App, mux *http.ServeMux) {
+	userHandler := h.NewUserHandler(app.UserService)
+	mux.HandleFunc("POST /register", userHandler.RegisterUser)
 }
