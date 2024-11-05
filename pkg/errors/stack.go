@@ -33,10 +33,6 @@ func (s *Stack) Error() string {
 	return msg
 }
 
-// Resets the Stack
-func (s *Stack) Clear() {
-	s.Errors = nil
-}
 
 // Returns either error or nil
 func (s *Stack) Return() error {
