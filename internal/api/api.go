@@ -10,14 +10,12 @@ import (
 type App struct {
 	DB          *store.Database
 	UserService *services.UserService
-	AuthService *services.AuthService
 }
 
 func NewApp(db *store.Database) *App {
 	return &App{
 		DB:          db,
 		UserService: services.NewUserService(db.UserStore),
-		AuthService: services.NewAuthService(),
 	}
 }
 
