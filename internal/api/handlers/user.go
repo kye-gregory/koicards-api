@@ -26,12 +26,12 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate
-	err := h.service.ValidateUser(&user)
-	if e.ReturnHttpError(w, err, http.StatusBadRequest) { return }
+	errStack := h.service.ValidateUser(&user, http.StatusBadRequest)
+	if e.ReturnHttpError(w, errStack) { return }
 
 	// Register
-	err = h.service.RegisterUser(&user)
-	if e.ReturnHttpError(w, err, http.StatusConflict) { return }
+	errStack = h.service.RegisterUser(&user, http.StatusConflict)
+	if e.ReturnHttpError(w, errStack) { return }
 
 	// Return Success
 	w.Header().Set("Content-Type", "text/plain")

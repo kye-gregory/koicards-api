@@ -1,11 +1,12 @@
 package services
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/kye-gregory/koicards-api/internal/auth"
 	"github.com/kye-gregory/koicards-api/internal/models"
 	"github.com/kye-gregory/koicards-api/internal/store"
+	e "github.com/kye-gregory/koicards-api/pkg/errors"
 )
 
 type UserService struct {
@@ -17,25 +18,52 @@ func NewUserService(s store.UserStore) *UserService {
 	return &UserService{store: s}
 }
 
+func (s *UserService) ValidateUser(user *models.User, status int) *e.HttpErrorStack {
+	// Create Error Stack
+	errStack := e.NewHttpErrorStack(status)
 
-// Checks user details are in a valid format
-func (s *UserService) ValidateUser(user *models.User) error {
-	return nil
+	// Validate Through Auth Package
+	auth.ValidateEmail(errStack, user.Email)
+	auth.ValidateUsername(errStack, user.Username)
+	auth.ValidatePassword(errStack, user.Password)
+
+	// Return Error Stack
+	return errStack
 }
 
 
 // Calls store to register database
-func (s *UserService) RegisterUser(user *models.User) error {
-	// Check if user exists
-	exists, err := s.store.UserExists(user.Email)
-	if err != nil { return err }
-	if exists { return fmt.Errorf("user already exists") }
+func (s *UserService) RegisterUser(u *models.User, status int) *e.HttpErrorStack {
+	// Create Error Stack
+	errStack := e.NewHttpErrorStack(status)
 
-	// Has password
-	hashedPassword, err := auth.Hash(user.Password)
-	if err != nil { return err }
-	user.Password = hashedPassword
+	// Check If Email Is Already Registered
+	exists, err := s.store.IsEmailRegistered(u.Email)
+	if err != nil { return errStack.ReturnInternalError() }
+	if exists { 
+		err = errors.New("email already in use")
+		errStack.Add("database", err.Error()) 
+		return errStack
+	}
 
-	// Update store & return any errors
-	return s.store.CreateUser(user)
+	// Check If Username Is Already Registered
+	exists, err = s.store.IsUsernameRegistered(u.Username)
+	if err != nil { return errStack.ReturnInternalError() }
+	if exists { 
+		err = errors.New("username already taken")
+		errStack.Add("database", err.Error()) 
+		return errStack
+	}
+
+	// Hash Password
+	hashedPassword, err := auth.Hash(u.Password)
+	if err != nil { return errStack.ReturnInternalError() }
+	u.Password = hashedPassword
+
+	// Update Store
+	err = s.store.CreateUser(u)
+	if (err != nil ) { return errStack.ReturnInternalError() }
+
+	// Return Error Stack
+	return errStack
 }

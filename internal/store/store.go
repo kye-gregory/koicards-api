@@ -15,6 +15,7 @@ func NewDatabase(userStore UserStore) *Database {
 
 // UserStore defines the methods for user data operations
 type UserStore interface {
-	UserExists(email string) (bool, error)
+	IsUsernameRegistered(email string) (bool, error)
+    IsEmailRegistered(email string) (bool, error)
     CreateUser(user *models.User) error
 }
