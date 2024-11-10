@@ -42,8 +42,7 @@ func (s *UserService) RegisterUser(u *models.User, status int) *e.HttpErrorStack
 	if err != nil { return errStack.ReturnInternalError() }
 	if exists { 
 		err = errors.New("email already in use")
-		errStack.Add("database", err.Error()) 
-		return errStack
+		errStack.Add("database", err.Error())
 	}
 
 	// Check If Username Is Already Registered
@@ -51,9 +50,11 @@ func (s *UserService) RegisterUser(u *models.User, status int) *e.HttpErrorStack
 	if err != nil { return errStack.ReturnInternalError() }
 	if exists { 
 		err = errors.New("username already taken")
-		errStack.Add("database", err.Error()) 
-		return errStack
+		errStack.Add("database", err.Error())
 	}
+
+	// Return Non-Internal Errors
+	if !errStack.IsEmpty() { return errStack }
 
 	// Hash Password
 	hashedPassword, err := auth.Hash(u.Password)
