@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/kye-gregory/koicards-api/internal/models"
 	"github.com/kye-gregory/koicards-api/internal/services"
-	e "github.com/kye-gregory/koicards-api/pkg/errors"
 )
 
 type UserHandler struct {
@@ -27,14 +25,12 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	// Validate
 	errStack := h.service.ValidateUser(&user, http.StatusBadRequest)
-	if e.ReturnHttpError(w, errStack) { return }
+	if returnHttpError(w, errStack) { return }
 
 	// Register
 	errStack = h.service.RegisterUser(&user, http.StatusConflict)
-	if e.ReturnHttpError(w, errStack) { return }
+	if returnHttpError(w, errStack) { return }
 
 	// Return Success
-	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "User Registered Successfully!")
+	returnTextSuccess(w, "User Registered Successfully!")
 }
