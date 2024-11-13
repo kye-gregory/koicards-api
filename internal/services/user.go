@@ -13,7 +13,7 @@ type UserService struct {
 	store 	store.UserStore
 }
 
-// Constructor function for AuthService
+// Constructor function for UserService
 func NewUserService(s store.UserStore) *UserService {
 	return &UserService{store: s}
 }

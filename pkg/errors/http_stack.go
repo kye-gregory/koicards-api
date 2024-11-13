@@ -7,7 +7,7 @@ import (
 )
 
 type HttpErrorStack struct {
-	StatusCode int					`json:"stausCode"`
+	StatusCode int					`json:"statusCode"`
 	Errors     map[string][]string	`json:"errors,omitempty"`
 }
 
