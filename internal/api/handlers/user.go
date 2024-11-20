@@ -5,6 +5,7 @@ import (
 
 	"github.com/kye-gregory/koicards-api/internal/models"
 	"github.com/kye-gregory/koicards-api/internal/services"
+	"github.com/kye-gregory/koicards-api/pkg/debug/errorstack"
 )
 
 type UserHandler struct {
