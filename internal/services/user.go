@@ -3,7 +3,6 @@ package services
 import (
 	"errors"
 
-	"github.com/kye-gregory/koicards-api/internal/auth"
 	"github.com/kye-gregory/koicards-api/internal/models"
 	"github.com/kye-gregory/koicards-api/internal/store"
 	"github.com/kye-gregory/koicards-api/pkg/debug/errorstack"
@@ -18,18 +17,6 @@ func NewUserService(s store.UserStore) *UserService {
 	return &UserService{store: s}
 }
 
-func (s *UserService) ValidateUser(user *models.User, status int) *e.HttpErrorStack {
-	// Create Error Stack
-	errStack := e.NewHttpErrorStack(status)
-
-	// Validate Through Auth Package
-	auth.ValidateEmail(errStack, user.Email)
-	auth.ValidateUsername(errStack, user.Username)
-	auth.ValidatePassword(errStack, user.Password)
-
-	// Return Error Stack
-	return errStack
-}
 
 
 // Calls store to register database
@@ -38,7 +25,7 @@ func (svc *UserService) RegisterUser(u *models.User, status int) *errorstack.Htt
 	errStack := errorstack.NewHttpStack().Status(status)
 
 	// Check If Email Is Already Registered
-	exists, err := svc.store.IsEmailRegistered(u.Email)
+	exists, err := svc.store.IsEmailRegistered(u.Email.String())
 	if err != nil { return errStack.ReturnInternalError() }
 	if exists { 
 		err = errors.New("email already in use")
@@ -46,7 +33,7 @@ func (svc *UserService) RegisterUser(u *models.User, status int) *errorstack.Htt
 	}
 
 	// Check If Username Is Already Registered
-	exists, err = svc.store.IsUsernameRegistered(u.Username)
+	exists, err = svc.store.IsUsernameRegistered(u.Username.String())
 	if err != nil { return errStack.ReturnInternalError() }
 	if exists { 
 		err = errors.New("username already taken")
@@ -55,11 +42,6 @@ func (svc *UserService) RegisterUser(u *models.User, status int) *errorstack.Htt
 
 	// Return Non-Internal Errors
 	if !errStack.IsEmpty() { return errStack }
-
-	// Hash Password
-	hashedPassword, err := auth.Hash(u.Password)
-	if err != nil { return errStack.ReturnInternalError() }
-	u.Password = hashedPassword
 
 	// Update Store
 	err = svc.store.CreateUser(u)
