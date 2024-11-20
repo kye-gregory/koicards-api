@@ -50,3 +50,14 @@ func (svc *UserService) RegisterUser(u *models.User, status int) *errorstack.Htt
 	// Return Error Stack
 	return errStack
 }
+
+
+func (svc *UserService) SetEmailAsVerified(email string) *errorstack.HttpStack {
+	// Create Error Stack
+	errStack := errorstack.NewHttpStack()
+
+	err := svc.store.ActivateUser(email)
+	if err != nil { return errStack.ReturnInternalError() }
+
+	return errStack
+}

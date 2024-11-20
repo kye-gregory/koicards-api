@@ -11,11 +11,13 @@ import (
 
 type UserHandler struct {
     svc *services.UserService
+	auth *services.AuthService
 }
 
-func NewUserHandler(svc *services.UserService) *UserHandler {
-    return &UserHandler{svc: svc}
+func NewUserHandler(svc *services.UserService, auth *services.AuthService) *UserHandler {
+    return &UserHandler{svc: svc, auth: auth}
 }
+
 
 func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {	
 	// Create User Struct
@@ -36,6 +38,21 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	httpStack = h.svc.RegisterUser(user, http.StatusConflict)
 	if returnHttpError(w, httpStack) { return }
 
+	// Send Verification Email
+	httpStack = h.auth.SendEmailVerification(email.String(), username.String())
+	if returnHttpError(w, httpStack) { return }
+
 	// Return Success
-	returnTextSuccess(w, "User Registered Successfully!")
+	returnSuccess(w, "User Registered Successfully")
+}
+
+func (h *UserHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
+	token := r.FormValue("token")
+	email, errStack := h.auth.VerifyEmail(token)
+	if returnHttpError(w, errStack) { return }
+
+	errStack = h.svc.SetEmailAsVerified(email)
+	if returnHttpError(w, errStack) { return }
+
+	returnSuccess(w, "Email Verified")
 }

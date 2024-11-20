@@ -2,16 +2,15 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/kye-gregory/koicards-api/pkg/debug/errorstack"
 )
 
-func returnTextSuccess(w http.ResponseWriter, text string) {
-	w.Header().Set("Content-Type", "text/plain")
+func returnSuccess(w http.ResponseWriter, payload any) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, text)
+	json.NewEncoder(w).Encode(payload)
 }
 
 

@@ -1,6 +1,10 @@
 package mock
 
 import (
+	"fmt"
+	"maps"
+	"slices"
+
 	"github.com/kye-gregory/koicards-api/internal/models"
 )
 
@@ -35,4 +39,22 @@ func (store *UserStore) CreateUser(user *models.User) error {
 	user.ID = id
 	store.users[id] = user
 	return nil
+}
+
+
+func (store *UserStore) ActivateUser(email string) error {
+	user, err := store.GetUserByEmail(email)
+	if (err != nil) { return err }
+
+	user.IsVerified = true
+	return nil
+}
+
+func (store *UserStore) GetUserByEmail(email string) (*models.User, error) {
+	for _, user := range store.users {
+		if (user.Email.String() != email) { continue }
+		return user, nil
+	}
+
+	return nil, fmt.Errorf("user not found")
 }
