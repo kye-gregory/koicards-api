@@ -3,10 +3,9 @@ package services
 import (
 	"errors"
 
-	"github.com/kye-gregory/koicards-api/internal/auth"
 	"github.com/kye-gregory/koicards-api/internal/models"
 	"github.com/kye-gregory/koicards-api/internal/store"
-	e "github.com/kye-gregory/koicards-api/pkg/errors"
+	"github.com/kye-gregory/koicards-api/pkg/debug/errorstack"
 )
 
 type UserService struct {
@@ -18,53 +17,59 @@ func NewUserService(s store.UserStore) *UserService {
 	return &UserService{store: s}
 }
 
-func (s *UserService) ValidateUser(user *models.User, status int) *e.HttpErrorStack {
-	// Create Error Stack
-	errStack := e.NewHttpErrorStack(status)
 
-	// Validate Through Auth Package
-	auth.ValidateEmail(errStack, user.Email)
-	auth.ValidateUsername(errStack, user.Username)
-	auth.ValidatePassword(errStack, user.Password)
+func (svc *UserService) GetAllUsers() ([]*models.User, *errorstack.HttpStack) {
+	// Create Error Stack
+	errStack := errorstack.NewHttpStack()
+
+	// Get All Users
+	users, err := svc.store.GetAllUsers()
+	if (err != nil) { return nil, errStack.ReturnInternalError() }
+
+	// Return
+	return users, errStack
+}
+
+
+// Calls store to register database
+func (svc *UserService) RegisterUser(u *models.User, status int) *errorstack.HttpStack {
+	// Create Error Stack
+	errStack := errorstack.NewHttpStack().Status(status)
+
+	// Check If Email Is Already Registered
+	exists, err := svc.store.IsEmailRegistered(u.Email.String())
+	if err != nil { return errStack.ReturnInternalError() }
+	if exists { 
+		err = errors.New("email already in use")
+		errStack.Add("database", err)
+	}
+
+	// Check If Username Is Already Registered
+	exists, err = svc.store.IsUsernameRegistered(u.Username.String())
+	if err != nil { return errStack.ReturnInternalError() }
+	if exists { 
+		err = errors.New("username already taken")
+		errStack.Add("database", err)
+	}
+
+	// Return Non-Internal Errors
+	if !errStack.IsEmpty() { return errStack }
+
+	// Update Store
+	err = svc.store.CreateUser(u)
+	if (err != nil ) { return errStack.ReturnInternalError() }
 
 	// Return Error Stack
 	return errStack
 }
 
 
-// Calls store to register database
-func (s *UserService) RegisterUser(u *models.User, status int) *e.HttpErrorStack {
+func (svc *UserService) SetEmailAsVerified(email string) *errorstack.HttpStack {
 	// Create Error Stack
-	errStack := e.NewHttpErrorStack(status)
+	errStack := errorstack.NewHttpStack()
 
-	// Check If Email Is Already Registered
-	exists, err := s.store.IsEmailRegistered(u.Email)
+	err := svc.store.ActivateUser(email)
 	if err != nil { return errStack.ReturnInternalError() }
-	if exists { 
-		err = errors.New("email already in use")
-		errStack.Add("database", err.Error())
-	}
 
-	// Check If Username Is Already Registered
-	exists, err = s.store.IsUsernameRegistered(u.Username)
-	if err != nil { return errStack.ReturnInternalError() }
-	if exists { 
-		err = errors.New("username already taken")
-		errStack.Add("database", err.Error())
-	}
-
-	// Return Non-Internal Errors
-	if !errStack.IsEmpty() { return errStack }
-
-	// Hash Password
-	hashedPassword, err := auth.Hash(u.Password)
-	if err != nil { return errStack.ReturnInternalError() }
-	u.Password = hashedPassword
-
-	// Update Store
-	err = s.store.CreateUser(u)
-	if (err != nil ) { return errStack.ReturnInternalError() }
-
-	// Return Error Stack
 	return errStack
 }
