@@ -18,6 +18,18 @@ func NewUserService(s store.UserStore) *UserService {
 }
 
 
+func (svc *UserService) GetAllUsers() ([]*models.User, *errorstack.HttpStack) {
+	// Create Error Stack
+	errStack := errorstack.NewHttpStack()
+
+	// Get All Users
+	users, err := svc.store.GetAllUsers()
+	if (err != nil) { return nil, errStack.ReturnInternalError() }
+
+	// Return
+	return users, errStack
+}
+
 
 // Calls store to register database
 func (svc *UserService) RegisterUser(u *models.User, status int) *errorstack.HttpStack {

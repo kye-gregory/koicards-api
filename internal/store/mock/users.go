@@ -58,3 +58,7 @@ func (store *UserStore) GetUserByEmail(email string) (*models.User, error) {
 
 	return nil, fmt.Errorf("user not found")
 }
+
+func (store *UserStore) GetAllUsers() ([]*models.User, error) {
+	return slices.Collect(maps.Values(store.users)), nil
+}

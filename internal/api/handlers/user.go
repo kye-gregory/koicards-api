@@ -19,6 +19,13 @@ func NewUserHandler(svc *services.UserService, auth *services.AuthService) *User
 }
 
 
+func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	users, errStack := h.svc.GetAllUsers()
+	if returnHttpError(w, errStack) { return }
+	returnSuccess(w, users)
+}
+
+
 func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {	
 	// Create User Struct
 	httpStack := errorstack.NewHttpStack().Status(http.StatusBadRequest)
@@ -33,7 +40,7 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		*username,
 		*password,
 	)
-
+	
 	// Register
 	httpStack = h.svc.RegisterUser(user, http.StatusConflict)
 	if returnHttpError(w, httpStack) { return }
