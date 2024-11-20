@@ -29,8 +29,7 @@ func NewRouter(app *App) http.Handler {
 	// Add Global Middleware
 	middlewareChain := MiddlewareChain(
 		RequestLoggerMiddleware,
-		RequireAuthMiddleware,
-	)
+			)
 
 	// Return Handler w/ middleware
 	return middlewareChain(mux)

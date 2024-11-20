@@ -23,15 +23,3 @@ func RequestLoggerMiddleware(next http.Handler) http.HandlerFunc {
 		next.ServeHTTP(w,r)
 	}
 }
-
-func RequireAuthMiddleware(next http.Handler) http.HandlerFunc {
-	return func (w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Authorization")
-		if token != "Bearer Authorized" {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		next.ServeHTTP(w,r)
-	}
-}
