@@ -1,5 +1,7 @@
 {
     "cSpell.words": [
+        "errorstack",
         "koicards"
-    ]
+    ],
+    "makefile.configureOnOpen": false
 }
