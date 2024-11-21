@@ -10,6 +10,7 @@ type ErrorStack interface {
 	IsEmpty() bool
 	Add(err error)
 	Return() error
+	Clear()
 }
 
 type Stack struct {
@@ -25,6 +26,14 @@ func NewStack() *Stack {
 // Appends an error to the Stack.
 func (s *Stack) Add(key string, err error) {
 	s.Errors[key] = append(s.Errors[key], err.Error())
+}
+
+// Clears all errors on stack
+func (s *Stack) Clear() *Stack {
+	for k := range s.Errors {
+		delete(s.Errors, k)
+	}
+	return s
 }
 
 // Implements the error interface.

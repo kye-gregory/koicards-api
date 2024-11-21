@@ -23,10 +23,7 @@ func NewAuthService() *AuthService {
 }
 
 
-func (svc *AuthService) SendEmailVerification(email string, username string) *errorstack.HttpStack {
-	// Create Error Stack
-	errStack := errorstack.NewHttpStack()
-
+func (svc *AuthService) SendEmailVerification(email string, username string, errStack *errorstack.HttpStack) {
 	// Define claims
 	claims := jwt.MapClaims{
 		"email": email,
@@ -40,26 +37,22 @@ func (svc *AuthService) SendEmailVerification(email string, username string) *er
 
 	// Sign the token with the secret key
 	signedToken, err := token.SignedString(secretKey)
-	if err != nil { return errStack.ReturnInternalError() }
+	if err != nil { errStack.ReturnInternalError(); return }
 
-	// Send Email
+	// Setup Email
 	to := []string{claims["email"].(string)}
 	var body bytes.Buffer
 	t, err := template.ParseFiles("internal/mail/templates/verify_email.html")
-	if err != nil { return errStack.ReturnInternalError() }
+	if err != nil { errStack.ReturnInternalError(); return }
 
+	// Create Template & Send
 	t.Execute(&body, struct{VerificationLink string; Username string}{VerificationLink: "localhost:8080/api/v1/accounts/verify?token=" + signedToken, Username: username})
 	err = mail.Send("KoiCards - Verify Email", body, to)
-	if err != nil { return errStack.ReturnInternalError() }
-	
-	return errStack
+	if err != nil { errStack.ReturnInternalError(); return }
 }
 
 
-func (svc *AuthService) VerifyEmail(tokenString string) (string, *errorstack.HttpStack) {
-	// Create Error Stack
-	errStack := errorstack.NewHttpStack()
-
+func (svc *AuthService) VerifyEmail(tokenString string, errStack *errorstack.HttpStack) (string) {
 	// Parse the token
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Validate the signing method
@@ -69,16 +62,16 @@ func (svc *AuthService) VerifyEmail(tokenString string) (string, *errorstack.Htt
 		return secretKey, nil
 	})
 
-	if err != nil { return "", errStack.ReturnInternalError() }
+	if err != nil { errStack.ReturnInternalError(); return "" }
 
 	// Extract and validate claims
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		email := claims["email"].(string)
-		return email, errStack
+		return email
 	}
 
-
+	// Return Invalid
 	err = errors.New("invalid token")
 	errStack.Add("verification", err)
-	return "", errStack
+	return ""
 }

@@ -22,6 +22,13 @@ func (s *HttpStack) Status(status int) *HttpStack {
 	return s
 }
 
+func (s *HttpStack) Clear() *HttpStack {
+	for k := range s.Errors {
+		delete(s.Errors, k)
+	}
+	return s
+}
+
 
 func (s *HttpStack) Add(key string, err error) {
 	s.Errors[key] = append(s.Errors[key], err.Error())
@@ -56,14 +63,7 @@ func (s *HttpStack) Return() error {
 
 
 // Return internal error
-func (s *HttpStack) ReturnInternalError() *HttpStack {
-	s.StatusCode = http.StatusInternalServerError
-
-	// Clear Errors
-	for k := range s.Errors {
-		delete(s.Errors, k)
-	}
-
+func (s *HttpStack) ReturnInternalError() {
+	s.Clear().Status(http.StatusInternalServerError)	
 	s.Errors["internal"] = []string{"internal server error"}
-	return s
 }

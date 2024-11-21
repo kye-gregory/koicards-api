@@ -18,27 +18,21 @@ func NewUserService(s store.UserStore) *UserService {
 }
 
 
-func (svc *UserService) GetAllUsers() ([]*models.User, *errorstack.HttpStack) {
-	// Create Error Stack
-	errStack := errorstack.NewHttpStack()
-
+func (svc *UserService) GetAllUsers(errStack *errorstack.HttpStack) ([]*models.User) {
 	// Get All Users
 	users, err := svc.store.GetAllUsers()
-	if (err != nil) { return nil, errStack.ReturnInternalError() }
+	if (err != nil) { errStack.ReturnInternalError(); return nil }
 
 	// Return
-	return users, errStack
+	return users
 }
 
 
 // Calls store to register database
-func (svc *UserService) RegisterUser(u *models.User, status int) *errorstack.HttpStack {
-	// Create Error Stack
-	errStack := errorstack.NewHttpStack().Status(status)
-
+func (svc *UserService) RegisterUser(u *models.User, errStack *errorstack.HttpStack) {
 	// Check If Email Is Already Registered
 	exists, err := svc.store.IsEmailRegistered(u.Email.String())
-	if err != nil { return errStack.ReturnInternalError() }
+	if err != nil { errStack.ReturnInternalError(); return }
 	if exists { 
 		err = errors.New("email already in use")
 		errStack.Add("database", err)
@@ -46,30 +40,23 @@ func (svc *UserService) RegisterUser(u *models.User, status int) *errorstack.Htt
 
 	// Check If Username Is Already Registered
 	exists, err = svc.store.IsUsernameRegistered(u.Username.String())
-	if err != nil { return errStack.ReturnInternalError() }
+	if err != nil { errStack.ReturnInternalError(); return }
 	if exists { 
 		err = errors.New("username already taken")
 		errStack.Add("database", err)
 	}
 
 	// Return Non-Internal Errors
-	if !errStack.IsEmpty() { return errStack }
+	if !errStack.IsEmpty() { return }
 
 	// Update Store
 	err = svc.store.CreateUser(u)
-	if (err != nil ) { return errStack.ReturnInternalError() }
-
-	// Return Error Stack
-	return errStack
+	if (err != nil ) { errStack.ReturnInternalError(); return }
 }
 
 
-func (svc *UserService) SetEmailAsVerified(email string) *errorstack.HttpStack {
-	// Create Error Stack
-	errStack := errorstack.NewHttpStack()
-
+func (svc *UserService) SetEmailAsVerified(email string, errStack *errorstack.HttpStack) {
+	// Update Store
 	err := svc.store.ActivateUser(email)
-	if err != nil { return errStack.ReturnInternalError() }
-
-	return errStack
+	if err != nil { errStack.ReturnInternalError(); return }
 }
