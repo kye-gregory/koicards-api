@@ -5,11 +5,11 @@ import (
 )
 
 type User struct {
-	ID			int
-	Email 		userVO.Email
-	Username 	userVO.Username
-	Password 	userVO.Password
-	IsVerified	bool
+	ID			int				`json:"id"`
+	Email 		userVO.Email	`json:"email"`
+	Username 	userVO.Username	`json:"username"`
+	Password 	userVO.Password	`json:"-"`
+	IsVerified	bool			`json:"isVerified"`
 }
 
 func NewUser(email userVO.Email, username userVO.Username, password userVO.Password) *User{
