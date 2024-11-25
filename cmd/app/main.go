@@ -14,7 +14,7 @@ import (
 	"github.com/kye-gregory/koicards-api/internal/api"
 	"github.com/kye-gregory/koicards-api/internal/store"
 	"github.com/kye-gregory/koicards-api/internal/store/mock"
-	"github.com/kye-gregory/koicards-api/pkg/debug/errorstack"
+	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 )
 
 
@@ -29,7 +29,7 @@ func run(
 	// Initialise Environment
 	time.Local = time.UTC
 	log.SetOutput(stderr)
-	var errStack errorstack.Stack
+	var errStack errpkg.Stack
 	
 	// Watch System Interrupt & Kill Signals
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill)

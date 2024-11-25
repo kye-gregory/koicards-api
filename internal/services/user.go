@@ -5,7 +5,7 @@ import (
 
 	"github.com/kye-gregory/koicards-api/internal/models"
 	"github.com/kye-gregory/koicards-api/internal/store"
-	"github.com/kye-gregory/koicards-api/pkg/debug/errorstack"
+	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 )
 
 type UserService struct {
@@ -18,7 +18,7 @@ func NewUserService(s store.UserStore) *UserService {
 }
 
 
-func (svc *UserService) GetAllUsers(errStack *errorstack.HttpStack) ([]*models.User) {
+func (svc *UserService) GetAllUsers(errStack *errpkg.HttpStack) ([]*models.User) {
 	// Get All Users
 	users, err := svc.store.GetAllUsers()
 	if (err != nil) { errStack.ReturnInternalError(); return nil }
@@ -29,7 +29,7 @@ func (svc *UserService) GetAllUsers(errStack *errorstack.HttpStack) ([]*models.U
 
 
 // Calls store to register database
-func (svc *UserService) RegisterUser(u *models.User, errStack *errorstack.HttpStack) {
+func (svc *UserService) RegisterUser(u *models.User, errStack *errpkg.HttpStack) {
 	// Check If Email Is Already Registered
 	exists, err := svc.store.IsEmailRegistered(u.Email.String())
 	if err != nil { errStack.ReturnInternalError(); return }
@@ -55,7 +55,7 @@ func (svc *UserService) RegisterUser(u *models.User, errStack *errorstack.HttpSt
 }
 
 
-func (svc *UserService) SetEmailAsVerified(email string, errStack *errorstack.HttpStack) {
+func (svc *UserService) SetEmailAsVerified(email string, errStack *errpkg.HttpStack) {
 	// Update Store
 	err := svc.store.ActivateUser(email)
 	if err != nil { errStack.ReturnInternalError(); return }

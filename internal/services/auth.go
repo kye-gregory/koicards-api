@@ -9,7 +9,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/kye-gregory/koicards-api/internal/mail"
-	"github.com/kye-gregory/koicards-api/pkg/debug/errorstack"
+	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 )
 
 var secretKey = []byte("your-secret-key") // TODO: Put this as env variables!
@@ -23,7 +23,7 @@ func NewAuthService() *AuthService {
 }
 
 
-func (svc *AuthService) SendEmailVerification(email string, username string, errStack *errorstack.HttpStack) {
+func (svc *AuthService) SendEmailVerification(email string, username string, errStack *errpkg.HttpStack) {
 	// Define claims
 	claims := jwt.MapClaims{
 		"email": email,
@@ -52,7 +52,7 @@ func (svc *AuthService) SendEmailVerification(email string, username string, err
 }
 
 
-func (svc *AuthService) VerifyEmail(tokenString string, errStack *errorstack.HttpStack) (string) {
+func (svc *AuthService) VerifyEmail(tokenString string, errStack *errpkg.HttpStack) (string) {
 	// Parse the token
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Validate the signing method

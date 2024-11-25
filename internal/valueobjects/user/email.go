@@ -5,14 +5,14 @@ import (
 	"errors"
 	"net/mail"
 
-	"github.com/kye-gregory/koicards-api/pkg/debug/errorstack"
+	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 )
 
 type Email struct {
 	value string
 }
 
-func NewEmail(value string, errStack *errorstack.HttpStack) (*Email) {
+func NewEmail(value string, errStack *errpkg.HttpStack) (*Email) {
 
 	// Parse Email
 	err := errors.New("you must provide a valid email (i.e johndoe@example.com)")

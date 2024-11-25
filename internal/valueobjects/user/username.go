@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/kye-gregory/koicards-api/pkg/debug/errorstack"
+	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 	"github.com/kye-gregory/koicards-api/pkg/validate"
 )
 
@@ -12,7 +12,7 @@ type Username struct {
 	value string
 }
 
-func NewUsername(value string, errStack *errorstack.HttpStack) (*Username) {
+func NewUsername(value string, errStack *errpkg.HttpStack) (*Username) {
 	// Check Empty
 	err := errors.New("you must provide a username")
 	if (validate.MinMaxLength(value, 0, 0)) { errStack.Add("username", err)}

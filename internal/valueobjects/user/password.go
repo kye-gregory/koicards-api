@@ -5,14 +5,14 @@ import (
 	"unicode/utf8"
 
 	"github.com/kye-gregory/koicards-api/internal/auth"
-	"github.com/kye-gregory/koicards-api/pkg/debug/errorstack"
+	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 )
 
 type Password struct {
 	hashed string
 }
 
-func NewPassword(value string, errStack *errorstack.HttpStack) *Password {
+func NewPassword(value string, errStack *errpkg.HttpStack) *Password {
 	// Check Password Isn't Empty
 	err := errors.New("you must provide a password")
 	if utf8.RuneCountInString(value) == 0 { errStack.Add("password", err) }

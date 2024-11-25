@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/kye-gregory/koicards-api/pkg/debug/errorstack"
+	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 )
 
 func returnSuccess(w http.ResponseWriter, payload any) {
@@ -14,7 +14,7 @@ func returnSuccess(w http.ResponseWriter, payload any) {
 }
 
 
-func returnHttpError(w http.ResponseWriter, stack *errorstack.HttpStack) bool {
+func returnHttpError(w http.ResponseWriter, stack *errpkg.HttpStack) bool {
 	if !stack.IsEmpty() {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(stack.StatusCode)
