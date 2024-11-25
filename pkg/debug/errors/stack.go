@@ -6,15 +6,16 @@ import (
 )
 
 type ErrorStack interface {
-	Error() string
-	IsEmpty() bool
-	Add(err error)
-	Return() error
+	Add(err StructuredError)
 	Clear()
+	IsEmpty() bool
+	Error() string
+	InternalError(err StructuredError)
+	Return() error
 }
 
 type Stack struct {
-	Errors map[string][]string `json:"errors,omitempty"`
+	Errors []StructuredError `json:"errors,omitempty"`
 }
 
 // Creates a new Stack
@@ -23,17 +24,16 @@ func NewStack() *Stack {
 	return s
 }
 
-// Appends an error to the Stack.
-func (s *Stack) Add(key string, err error) {
-	s.Errors[key] = append(s.Errors[key], err.Error())
+func (s *Stack) Add(err StructuredError) {
+	s.Errors = append(s.Errors, err)
 }
 
-// Clears all errors on stack
-func (s *Stack) Clear() *Stack {
-	for k := range s.Errors {
-		delete(s.Errors, k)
-	}
-	return s
+func (s *Stack) Clear() {
+	s.Errors = make([]StructuredError, 0)
+}
+
+func (s *Stack) IsEmpty() bool {
+	return (len(s.Errors) == 0)
 }
 
 // Implements the error interface.
@@ -50,6 +50,11 @@ func (s *Stack) Error() string {
 	}
 
 	return string(bytes)
+}
+
+func (s *Stack) InternalError(err StructuredError) {
+	s.Clear()
+	s.Errors = []StructuredError{err}
 }
 
 // Returns either error or nil

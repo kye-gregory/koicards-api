@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/kye-gregory/koicards-api/internal/api"
+	errs "github.com/kye-gregory/koicards-api/internal/errors"
 	"github.com/kye-gregory/koicards-api/internal/store"
 	"github.com/kye-gregory/koicards-api/internal/store/mock"
 	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
@@ -29,7 +30,7 @@ func run(
 	// Initialise Environment
 	time.Local = time.UTC
 	log.SetOutput(stderr)
-	var errStack errpkg.Stack
+	errStack := errpkg.NewStack()
 	
 	// Watch System Interrupt & Kill Signals
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill)
@@ -50,8 +51,7 @@ func run(
 	go func() {
 		log.Println("Listening for requests on", httpServer.Addr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			errMsg := fmt.Errorf("%v", err)
-			errStack.Add("Listen And Serve", errMsg)
+			errs.Internal(errStack, err)
 			cancel()
 		}
 	}()
@@ -65,8 +65,7 @@ func run(
 	// Shutdown Server
 	log.Println("Server shutting down...")
 	if err := httpServer.Shutdown(shutdownCtx); err != nil {
-		errMsg := fmt.Errorf("%s", err)
-		errStack.Add("Server Shutdown", errMsg)
+		errs.Internal(errStack, err)
 	}
 
 	// Return Any Errors

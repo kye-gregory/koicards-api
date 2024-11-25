@@ -21,7 +21,7 @@ func NewUserHandler(svc *services.UserService, auth *services.AuthService) *User
 
 func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	// Get All Users
-	httpStack := errpkg.NewHttpStack().Status(http.StatusBadRequest)
+	httpStack := errpkg.NewHttpStack().WithStatus(http.StatusBadRequest)
 	users := h.svc.GetAllUsers(httpStack)
 	if returnHttpError(w, httpStack) { return }
 
@@ -32,7 +32,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {	
 	// Create User Struct
-	httpStack := errpkg.NewHttpStack().Status(http.StatusBadRequest)
+	httpStack := errpkg.NewHttpStack().WithStatus(http.StatusBadRequest)
 	email := userVO.NewEmail(r.FormValue("email"), httpStack)
 	username := userVO.NewUsername(r.FormValue("username"), httpStack)
 	password := userVO.NewPassword(r.FormValue("password"), httpStack)
@@ -46,12 +46,12 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	)
 	
 	// Register
-	httpStack.Status(http.StatusConflict)
+	httpStack.WithStatus(http.StatusConflict)
 	h.svc.RegisterUser(user, httpStack)
 	if returnHttpError(w, httpStack) { return }
 
 	// Send Verification Email
-	httpStack.Status(http.StatusInternalServerError)
+	httpStack.WithStatus(http.StatusInternalServerError)
 	h.auth.SendEmailVerification(email.String(), username.String(), httpStack)
 	if returnHttpError(w, httpStack) { return }
 
@@ -64,12 +64,12 @@ func (h *UserHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	token := r.FormValue("token")
 
 	// Verify Token
-	httpStack := errpkg.NewHttpStack().Status(http.StatusBadRequest)
+	httpStack := errpkg.NewHttpStack().WithStatus(http.StatusBadRequest)
 	email := h.auth.VerifyEmail(token, httpStack)
 	if returnHttpError(w, httpStack) { return }
 
 	// Update User Details
-	httpStack.Status(http.StatusInternalServerError)
+	httpStack.WithStatus(http.StatusInternalServerError)
 	h.svc.SetEmailAsVerified(email, httpStack)
 	if returnHttpError(w, httpStack) { return }
 

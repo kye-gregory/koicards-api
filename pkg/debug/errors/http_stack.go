@@ -7,39 +7,28 @@ import (
 )
 
 type HttpStack struct {
-	StatusCode int                 `json:"statusCode"`
-	Errors     map[string][]string `json:"errors,omitempty"`
+	StatusCode int                  `json:"statusCode"`
+	Errors     []StructuredError	`json:"errors,omitempty"`
 }
 
 
 func NewHttpStack() *HttpStack {
-	return &HttpStack{StatusCode: http.StatusInternalServerError, Errors: make(map[string][]string)}
+	return &HttpStack{StatusCode: http.StatusInternalServerError, Errors: make([]StructuredError, 0)}
 }
 
-
-func (s *HttpStack) Status(status int) *HttpStack {
-	s.StatusCode = status
-	return s
+func (s *HttpStack) Add(err StructuredError) {
+	s.Errors = append(s.Errors, err)
 }
 
-func (s *HttpStack) Clear() *HttpStack {
-	for k := range s.Errors {
-		delete(s.Errors, k)
-	}
-	return s
+func (s *HttpStack) Clear() {
+	s.Errors = make([]StructuredError, 0)
 }
-
-
-func (s *HttpStack) Add(key string, err error) {
-	s.Errors[key] = append(s.Errors[key], err.Error())
-}
-
 
 func (s *HttpStack) IsEmpty() bool {
 	return (len(s.Errors) == 0)
 }
 
-
+// Returns errors as JSON
 func (s *HttpStack) Error() string {
 	if len(s.Errors) == 0 {
 		return ""
@@ -54,6 +43,12 @@ func (s *HttpStack) Error() string {
 	return string(bytes)
 }
 
+// Return internal error
+func (s *HttpStack) InternalError(err StructuredError) {
+	s.Clear()
+	s.WithStatus(http.StatusInternalServerError)	
+	s.Errors = []StructuredError{err}
+}
 
 // Returns either error or nil
 func (s *HttpStack) Return() error {
@@ -61,9 +56,8 @@ func (s *HttpStack) Return() error {
 	return nil
 }
 
-
-// Return internal error
-func (s *HttpStack) ReturnInternalError() {
-	s.Clear().Status(http.StatusInternalServerError)	
-	s.Errors["internal"] = []string{"internal server error"}
+// Update Status
+func (s *HttpStack) WithStatus(status int) *HttpStack {
+	s.StatusCode = status
+	return s
 }

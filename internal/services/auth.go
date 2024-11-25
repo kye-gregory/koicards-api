@@ -2,12 +2,12 @@ package services
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"html/template"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	errs "github.com/kye-gregory/koicards-api/internal/errors"
 	"github.com/kye-gregory/koicards-api/internal/mail"
 	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 )
@@ -37,18 +37,18 @@ func (svc *AuthService) SendEmailVerification(email string, username string, err
 
 	// Sign the token with the secret key
 	signedToken, err := token.SignedString(secretKey)
-	if err != nil { errStack.ReturnInternalError(); return }
+	if err != nil { errs.Internal(errStack, err); return }
 
 	// Setup Email
 	to := []string{claims["email"].(string)}
 	var body bytes.Buffer
 	t, err := template.ParseFiles("internal/mail/templates/verify_email.html")
-	if err != nil { errStack.ReturnInternalError(); return }
+	if err != nil { errs.Internal(errStack, err); return }
 
 	// Create Template & Send
 	t.Execute(&body, struct{VerificationLink string; Username string}{VerificationLink: "localhost:8080/api/v1/accounts/verify?token=" + signedToken, Username: username})
 	err = mail.Send("KoiCards - Verify Email", body, to)
-	if err != nil { errStack.ReturnInternalError(); return }
+	if err != nil { errs.Internal(errStack, err); return }
 }
 
 
@@ -62,7 +62,8 @@ func (svc *AuthService) VerifyEmail(tokenString string, errStack *errpkg.HttpSta
 		return secretKey, nil
 	})
 
-	if err != nil { errStack.ReturnInternalError(); return "" }
+	// Check internal errors
+	if err != nil { errs.Internal(errStack, err); return "" }
 
 	// Extract and validate claims
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
@@ -70,8 +71,8 @@ func (svc *AuthService) VerifyEmail(tokenString string, errStack *errpkg.HttpSta
 		return email
 	}
 
-	// Return Invalid
-	err = errors.New("invalid token")
-	errStack.Add("verification", err)
+	// Return invalid
+	structuredErr := errs.AuthInvalidToken("invalid token")
+	errStack.Add(structuredErr)
 	return ""
 }

@@ -1,11 +1,12 @@
 package user
 
 import (
-	"errors"
 	"unicode/utf8"
 
 	"github.com/kye-gregory/koicards-api/internal/auth"
+	errs "github.com/kye-gregory/koicards-api/internal/errors"
 	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
+	"github.com/kye-gregory/koicards-api/pkg/validate"
 )
 
 type Password struct {
@@ -14,13 +15,13 @@ type Password struct {
 
 func NewPassword(value string, errStack *errpkg.HttpStack) *Password {
 	// Check Password Isn't Empty
-	err := errors.New("you must provide a password")
-	if utf8.RuneCountInString(value) == 0 { errStack.Add("password", err) }
+	structuredErr := errs.PasswordEmpty("you must provide a password")
+	if utf8.RuneCountInString(value) == 0 { errStack.Add(structuredErr) }
 
 	// Check Password Length
-	err = errors.New("password length must be between 8-64 characters (inclusive)")
-	if utf8.RuneCountInString(value) < 8 { errStack.Add("password", err) }
-	if utf8.RuneCountInString(value) > 64 { errStack.Add("password", err) }
+	// Check Length
+	structuredErr = errs.PasswordLength("password must be between 8-64 characters long (inclusive)")
+	if (!validate.MinMaxLength(value, 8, 64)) { errStack.Add(structuredErr)}
 
 	// TODO: Add More Password Validations!
 	//	- Character Variety (i.e at least one number, capital, and special character)?
@@ -29,7 +30,7 @@ func NewPassword(value string, errStack *errpkg.HttpStack) *Password {
 
 	// Hash Password
 	hashed, err := auth.Hash(value)
-	if (err != nil) { errStack.ReturnInternalError() }
+	if err != nil { errs.Internal(errStack, err); return nil }
 
 	// Return
 	if (errStack.IsEmpty()) { return &Password{hashed: hashed} }

@@ -2,9 +2,9 @@ package user
 
 import (
 	"encoding/json"
-	"errors"
 	"net/mail"
 
+	errs "github.com/kye-gregory/koicards-api/internal/errors"
 	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 )
 
@@ -13,11 +13,10 @@ type Email struct {
 }
 
 func NewEmail(value string, errStack *errpkg.HttpStack) (*Email) {
-
-	// Parse Email
-	err := errors.New("you must provide a valid email (i.e johndoe@example.com)")
-	_, parseErr := mail.ParseAddress(value)
-	if (parseErr != nil) { errStack.Add("email", err) }
+	// Validate Email
+	structuredErr := errs.EmailInvalid("you must provide a valid email (i.e johndoe@example.com)")
+	_, err := mail.ParseAddress(value)
+	if (err != nil) { errStack.Add(structuredErr) }
 
 	// Return
 	if (errStack.IsEmpty()) { return &Email{value: value} }
