@@ -24,6 +24,14 @@ func (s *HttpStack) Clear() {
 	s.Errors = make([]StructuredError, 0)
 }
 
+func (s *HttpStack) Contains(code ErrorCode) bool {
+	for _, err := range s.Errors {
+		if err.Code() == code { return true }
+	}
+
+	return false
+}
+
 func (s *HttpStack) IsEmpty() bool {
 	return (len(s.Errors) == 0)
 }

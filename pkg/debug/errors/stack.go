@@ -8,6 +8,7 @@ import (
 type ErrorStack interface {
 	Add(err StructuredError)
 	Clear()
+	Contains(code ErrorCode) bool
 	IsEmpty() bool
 	Error() string
 	InternalError(err StructuredError)
@@ -30,6 +31,14 @@ func (s *Stack) Add(err StructuredError) {
 
 func (s *Stack) Clear() {
 	s.Errors = make([]StructuredError, 0)
+}
+
+func (s *Stack) Contains(code ErrorCode) bool {
+	for _, err := range s.Errors {
+		if err.Code() == code { return true }
+	}
+
+	return false
 }
 
 func (s *Stack) IsEmpty() bool {
