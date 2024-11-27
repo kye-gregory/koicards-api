@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"log"
 
 	errs "github.com/kye-gregory/koicards-api/internal/errors"
 	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
@@ -24,6 +25,17 @@ func NewUsername(value string, errStack *errpkg.HttpStack) (*Username) {
 	// Check Format
 	structuredErr = errs.UsernameFormat("username cannot have more than one allowed special character in a row")	
 	if validate.MatchRegex(value, ".*[_-]{2,}.*") { errStack.Add(structuredErr) }
+
+	// Return Basic Errors (to prevent unnecessary heavy commute for checking restricted)
+	if (!errStack.IsEmpty()) { return nil }
+
+	// Check Restricted
+	list, isRestricted := validate.IsRestricted(value, usernameBlacklist.Items(), usernameWhitelist.Items())
+	if (len(list) > 0) { log.Printf("[Not Implemented] Flag Username \"%s\" for possibly containing %v", value, list) }
+	if isRestricted { 
+		structuredErr = errs.UsernameRestricted("username cannot contain any reserved (i.e admin) or restricted words (i.e slurs)")
+		errStack.Add(structuredErr)
+	}
 
 	// Return
 	if (errStack.IsEmpty()) { return &Username{value: value} }
