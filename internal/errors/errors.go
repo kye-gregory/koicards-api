@@ -25,9 +25,11 @@ func Internal(errStack errpkg.ErrorStack, err error) {
 // Username Errors
 var usernameField = *errpkg.NewErrorField("username")
 var UsernameLengthCode = *errpkg.NewErrorCode("username_invalid_length")
+var UsernameFormatCode = *errpkg.NewErrorCode("username_invalid_format")
 var UsernameCharsetCode = *errpkg.NewErrorCode("username_invalid_charset")
 var UsernameInUseCode = *errpkg.NewErrorCode("username_in_use")
 func UsernameLength(message string) errpkg.StructuredError { return fieldError(UsernameLengthCode, message, usernameField) }
+func UsernameFormat(message string) errpkg.StructuredError { return fieldError(UsernameFormatCode, message, usernameField) }
 func UsernameCharset(message string) errpkg.StructuredError { return fieldError(UsernameCharsetCode, message, usernameField) }
 func UsernameInUse(message string) errpkg.StructuredError { return fieldError(UsernameInUseCode, message, usernameField) }
 
