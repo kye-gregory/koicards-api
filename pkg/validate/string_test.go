@@ -71,8 +71,8 @@ func TestOnlyContainsRunes(t *testing.T) {
 		allowed     string
 		expected    bool
 	}{
-		{"hello", "abcdefghijklmnopqrstuvwxyz", true},
-		{"hello123", "abcdefghijklmnopqrstuvwxyz", false},
+		{"abc", "abc", true},
+		{"abc123", "abc", false},
 		{"", "abc", true},
 		{"😊", "😊", true},
 		{"😊👍", "😊", false},
