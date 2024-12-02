@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/kye-gregory/koicards-api/internal/auth"
+	"github.com/kye-gregory/koicards-api/pkg/auth"
 
 	errs "github.com/kye-gregory/koicards-api/internal/errors"
 	"github.com/kye-gregory/koicards-api/internal/models"

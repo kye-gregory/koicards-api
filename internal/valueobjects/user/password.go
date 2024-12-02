@@ -1,8 +1,8 @@
 package user
 
 import (
-	"github.com/kye-gregory/koicards-api/internal/auth"
 	errs "github.com/kye-gregory/koicards-api/internal/errors"
+	"github.com/kye-gregory/koicards-api/pkg/auth"
 	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 	"github.com/kye-gregory/koicards-api/pkg/validate"
 )
