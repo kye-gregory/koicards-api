@@ -17,7 +17,7 @@ func NewApp(db *store.Database) *App {
 	return &App{
 		DB:          db,
 		UserService: services.NewUserService(db.UserStore),
-		AuthService: services.NewAuthService(),
+		AuthService: services.NewAuthService(db.SessionStore),
 	}
 }
 

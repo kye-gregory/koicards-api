@@ -38,7 +38,8 @@ func run(
 
 	// Initialise App
 	userStore := mock.NewUserStore()
-	db := store.NewDatabase(userStore)
+	sessionStore := mock.NewSessionStore()
+	db := store.NewDatabase(userStore, sessionStore)
 	app := api.NewApp(db)
 
 	// Create The Server

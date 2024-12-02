@@ -31,7 +31,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 
 func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {	
-	// Create User Struct
+	// Get Form Data
 	httpStack := errpkg.NewHttpStack().WithStatus(http.StatusBadRequest)
 	email := userVO.NewEmail(r.FormValue("email"), httpStack)
 	username := userVO.NewUsername(r.FormValue("username"), httpStack)
@@ -59,6 +59,7 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	returnSuccess(w, "User Registered Successfully")
 }
 
+
 func (h *UserHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	// Get Token
 	token := r.FormValue("token")
@@ -75,4 +76,43 @@ func (h *UserHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 
 	// Return Success
 	returnSuccess(w, "Email Verified")
+}
+
+
+func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+	// Get Form Data
+	email := r.FormValue("email")
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+
+	// Create Login Model
+	loginInfo := models.NewLogin(
+		email,
+		username,
+		password,
+	)
+
+	// Attempt Login
+	httpStack := errpkg.NewHttpStack().WithStatus(http.StatusUnauthorized)
+	userID := *h.svc.AttemptLogin(*loginInfo, httpStack)
+	if returnHttpError(w, httpStack) { return }
+
+	// Create Session
+	httpStack.WithStatus(http.StatusInternalServerError)
+	session := h.auth.CreateLoginSession(userID, httpStack)
+	if returnHttpError(w, httpStack) { return }
+	
+	// Set Session Cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_id",
+		Value:    session.ID,
+		Path:     "/",
+		Expires:  session.Expiry,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+	})
+	
+	// Return Success
+	returnSuccess(w, "Welcome back, " + username + " (" + session.ID + ")")
 }

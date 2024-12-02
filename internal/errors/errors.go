@@ -45,6 +45,14 @@ var EmailInUseCode = *errpkg.NewErrorCode("email_in_use")
 func EmailInvalid(message string) errpkg.StructuredError { return fieldError(EmailInvalidCode, message, emailField) }
 func EmailInUse(message string) errpkg.StructuredError { return fieldError(EmailInUseCode, message, emailField) }
 
+// Login Errors
+var LoginInvalidDetailsCode = *errpkg.NewErrorCode("login_invalid_details")
+func LoginInvalidDetails(message string) errpkg.StructuredError { return plainError(LoginInvalidDetailsCode, message) }
+
 // Auth Errors
 var AuthInvalidTokenCode = *errpkg.NewErrorCode("auth_invalid_token")
 func AuthInvalidToken(message string) errpkg.StructuredError { return plainError(AuthInvalidTokenCode, message) }
+
+// Database Errors
+var DBResultsNotFoundCode = *errpkg.NewErrorCode("database_results_not_found")
+func DatabaseResultsNotFound(message string) errpkg.StructuredError { return plainError(AuthInvalidTokenCode, message) }

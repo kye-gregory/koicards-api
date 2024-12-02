@@ -1,19 +1,20 @@
 package mock
 
 import (
-	"fmt"
 	"maps"
 	"slices"
 
 	"github.com/kye-gregory/koicards-api/internal/models"
+	"github.com/kye-gregory/koicards-api/internal/valueobjects/user"
+	userVO "github.com/kye-gregory/koicards-api/internal/valueobjects/user"
 )
 
 type UserStore struct {
-	users map[int]*models.User
+	users map[userVO.ID]*models.User
 }
 
 func NewUserStore() *UserStore {
-	return &UserStore{users: make(map[int]*models.User)}
+	return &UserStore{users: make(map[userVO.ID]*models.User)}
 }
 
 func (store *UserStore) IsEmailRegistered(email string) (bool, error) {
@@ -34,29 +35,31 @@ func (store *UserStore) IsUsernameRegistered(username string) (bool, error) {
 	return false, nil
 }
 
-func (store *UserStore) CreateUser(user *models.User) error {
-	id := len(store.users)
-	user.ID = id
-	store.users[id] = user
+func (store *UserStore) CreateUser(u *models.User) error {
+	id := *user.NewID()
+	u.ID = id
+	store.users[id] = u
 	return nil
 }
 
 
 func (store *UserStore) ActivateUser(email string) error {
-	user, err := store.GetUserByEmail(email)
+	user, err := store.GetUser(email)
 	if (err != nil) { return err }
 
 	user.IsVerified = true
 	return nil
 }
 
-func (store *UserStore) GetUserByEmail(email string) (*models.User, error) {
+func (store *UserStore) GetUser(identifier string) (*models.User, error) {
 	for _, user := range store.users {
-		if (user.Email.String() != email) { continue }
+		hasEmail := (user.Email.String() == identifier)
+		hasUsername := (user.Username.String() == identifier)
+		if (!hasEmail && !hasUsername) { continue }
 		return user, nil
 	}
 
-	return nil, fmt.Errorf("user not found")
+	return nil, nil
 }
 
 func (store *UserStore) GetAllUsers() ([]*models.User, error) {

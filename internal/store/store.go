@@ -1,15 +1,20 @@
 package store
 
-import "github.com/kye-gregory/koicards-api/internal/models"
+import (
+	"github.com/kye-gregory/koicards-api/internal/models"
+	userVO "github.com/kye-gregory/koicards-api/internal/valueobjects/user"
+)
 
 type Database struct {
     UserStore    UserStore
+    SessionStore SessionStore
 }
 
 // NewDatabase initializes the database with its stores
-func NewDatabase(userStore UserStore) *Database {
+func NewDatabase(userStore UserStore, sessionStore SessionStore) *Database {
     return &Database{
         UserStore:    userStore,
+        SessionStore: sessionStore,
     }
 }
 
@@ -19,6 +24,12 @@ type UserStore interface {
     IsEmailRegistered(email string) (bool, error)
     CreateUser(user *models.User) error
     ActivateUser(email string) error 
-    GetUserByEmail(email string) (*models.User, error)
+    GetUser(identifier string) (*models.User, error)
     GetAllUsers() ([]*models.User, error)
+}
+
+
+type SessionStore interface {
+    CreateSession(userID userVO.ID) (*models.Session, error)
+    VerifySession(sessionID string) (bool, error)
 }

@@ -25,6 +25,7 @@ func RegisterRoutes(app *App, mux *http.ServeMux) {
 	route.prefix = "accounts"
 	userHandler := h.NewUserHandler(app.UserService, app.AuthService)
 	mux.HandleFunc(route.calc("POST", "register"),	userHandler.RegisterUser)
+	mux.HandleFunc(route.calc("POST", "login"),	userHandler.Login)
 	mux.HandleFunc(route.calc("GET", "verify"),	userHandler.VerifyEmail)
 
 	route.prefix = "users"
