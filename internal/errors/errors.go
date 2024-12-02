@@ -17,7 +17,7 @@ func fieldError (code errpkg.ErrorCode, message string, field errpkg.ErrorField)
 // Internal Error
 var InternalCode = *errpkg.NewErrorCode("internal")
 func Internal(errStack errpkg.ErrorStack, err error) {
-	log.Print(err.Error())
+	log.Printf("INTERNAL ERROR: %s", err.Error())
 	structuredErr := plainError(InternalCode, "internal error")
 	errStack.InternalError(structuredErr)
 }

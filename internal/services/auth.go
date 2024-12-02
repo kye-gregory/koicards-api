@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -16,7 +17,7 @@ import (
 	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 )
 
-var secretKey = []byte("your-secret-key") // TODO: Put this as env variables!
+var secretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 
 type AuthService struct {
 	store store.SessionStore

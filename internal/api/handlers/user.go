@@ -94,12 +94,12 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Attempt Login
 	httpStack := errpkg.NewHttpStack().WithStatus(http.StatusUnauthorized)
-	userID := *h.svc.AttemptLogin(*loginInfo, httpStack)
+	userID := h.svc.AttemptLogin(*loginInfo, httpStack)
 	if returnHttpError(w, httpStack) { return }
 
 	// Create Session
 	httpStack.WithStatus(http.StatusInternalServerError)
-	session := h.auth.CreateLoginSession(userID, httpStack)
+	session := h.auth.CreateLoginSession(*userID, httpStack)
 	if returnHttpError(w, httpStack) { return }
 	
 	// Set Session Cookie
