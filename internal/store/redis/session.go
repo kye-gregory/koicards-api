@@ -17,4 +17,5 @@ func NewSessionStore(db *redis.Client) *SessionStore {
 }
 
 func (store *SessionStore) CreateSession(userID userVO.ID) (*models.Session, error) {return nil, fmt.Errorf("Not Implemented")}
+func (store *SessionStore) DeleteSession(sessionID string) error {return fmt.Errorf("Not Implemented")}
 func (store *SessionStore) VerifySession(sessionID string) (bool, error) {return false, fmt.Errorf("Not Implemented")}

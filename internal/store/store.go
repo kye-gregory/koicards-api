@@ -31,5 +31,6 @@ type UserStore interface {
 
 type SessionStore interface {
     CreateSession(userID userVO.ID) (*models.Session, error)
+    DeleteSession(sessionID string) error
     VerifySession(sessionID string) (bool, error)
 }
