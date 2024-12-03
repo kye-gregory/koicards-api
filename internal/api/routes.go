@@ -13,6 +13,7 @@ type route struct {
 }
 
 func (r *route) calc(method, endpoint string) string {
+	if (r.prefix == "") {return fmt.Sprintf("%s /api/%s/%s", method, r.version, endpoint)}
 	return fmt.Sprintf("%s /api/%s/%s/%s", method, r.version, r.prefix, endpoint)
 }
 
@@ -24,7 +25,7 @@ func RegisterRoutes(app *App, mux *http.ServeMux) http.Handler {
 
 	// Define Handles & Middleware
 	userHandler := h.NewUserHandler(app.UserService, app.AuthService)
-authMiddleware := h.AuthoriseMiddleware(app.AuthService)
+	authMiddleware := h.AuthoriseMiddleware(app.AuthService)
 
 	// "Get All" Routes
 	mux.HandleFunc(route.calc("GET", "users"), userHandler.GetUsers)
@@ -35,9 +36,8 @@ authMiddleware := h.AuthoriseMiddleware(app.AuthService)
 	mux.HandleFunc(route.calc("POST", "login"),	userHandler.Login)
 	mux.HandleFunc(route.calc("GET", "verify"),	userHandler.VerifyEmail)
 
-	route.prefix = "users"
 	mux.HandleFunc(route.calc("POST", "logout"), authMiddleware(userHandler.Logout))
-	
-// Add Global Middleware
+
+	// Add Global Middleware
 	return h.ApplyGlobalMiddleware(mux, h.RequestLoggerMiddleware)
 }
