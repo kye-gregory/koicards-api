@@ -16,6 +16,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
+    attach: false
     env_file:
       - .env
     ports:
@@ -34,6 +35,7 @@ services:
 
   redis-insight:
     image: redis/redisinsight:latest
+    attach: false
     restart: always
     ports:
       - "5540:5540"
