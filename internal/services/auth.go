@@ -101,7 +101,7 @@ func (svc *AuthService) DeleteSession(sessionID string, httpStack *errpkg.HttpSt
 
 
 func (svc *AuthService) VerifySession(sessionID string, httpStack *errpkg.HttpStack) {
-	structuredErr := errs.DatabaseResultsNotFound("invalid token")
+	structuredErr := errs.AuthUnauthorised("invalid session id")
 	exists, err := svc.store.VerifySession(sessionID)
 	if err != nil { errs.Internal(httpStack, err); return }
 	if !exists { httpStack.Add(structuredErr) }

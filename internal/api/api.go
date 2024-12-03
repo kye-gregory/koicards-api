@@ -26,13 +26,5 @@ func NewRouter(app *App) http.Handler {
 	mux := http.NewServeMux()
 
 	// Setup Routes
-	RegisterRoutes(app, mux)
-
-	// Add Global Middleware
-	middlewareChain := MiddlewareChain(
-		RequestLoggerMiddleware,
-	)
-
-	// Return Handler w/ middleware
-	return middlewareChain(mux)
+	return RegisterRoutes(app, mux)
 }
