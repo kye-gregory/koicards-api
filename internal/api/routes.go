@@ -36,7 +36,7 @@ authMiddleware := h.AuthoriseMiddleware(app.AuthService)
 	mux.HandleFunc(route.calc("GET", "verify"),	userHandler.VerifyEmail)
 
 	route.prefix = "users"
-	mux.HandleFunc(route.calc("GET", ""), userHandler.GetUsers)
+	mux.HandleFunc(route.calc("POST", "logout"), authMiddleware(userHandler.Logout))
 	
 // Add Global Middleware
 	return h.ApplyGlobalMiddleware(mux, h.RequestLoggerMiddleware)

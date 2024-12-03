@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"net/http"
+"time"
 
+errs "github.com/kye-gregory/koicards-api/internal/errors"
 	"github.com/kye-gregory/koicards-api/internal/models"
 	"github.com/kye-gregory/koicards-api/internal/services"
 	userVO "github.com/kye-gregory/koicards-api/internal/valueobjects/user"
@@ -114,5 +116,31 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	})
 	
 	// Return Success
-	returnSuccess(w, "Welcome back, " + username + " (" + session.ID + ")")
+	returnSuccess(w, "Welcome back, " + username)
+}
+
+
+func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	// Get Cookie
+	httpStack := errpkg.NewHttpStack().WithStatus(http.StatusInternalServerError)
+	sessionCookie, err := r.Cookie("session_id")
+	if err != nil { errs.Internal(httpStack, err) }
+	if returnHttpError(w, httpStack) { return }
+
+	// Delete Session
+	h.auth.DeleteSession(sessionCookie.Value, httpStack)
+	if returnHttpError(w, httpStack) { return }
+
+	// Set Session Cookie To Blank
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_id",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+		Secure:   true,
+	})
+	
+	// Return Success
+	returnSuccess(w, "You have been successfully logged out.")
 }
