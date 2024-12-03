@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/google/uuid"
 	userVO "github.com/kye-gregory/koicards-api/internal/valueobjects/user"
 )
 
@@ -14,7 +15,7 @@ type Session struct {
 
 func NewSession(userID userVO.ID) *Session {
 	return &Session{
-		ID: "session-" + userID.String(),
+		ID: uuid.New().String(),
 		User: userID,
 		Expiry: time.Now().Add(time.Hour * 24),
 	}
