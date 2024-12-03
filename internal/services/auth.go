@@ -84,7 +84,7 @@ func (svc *AuthService) VerifyEmail(tokenString string, httpStack *errpkg.HttpSt
 }
 
 
-func (svc *AuthService) CreateLoginSession(userID userVO.ID, httpStack *errpkg.HttpStack) *models.Session {
+func (svc *AuthService) CreateSession(userID userVO.ID, httpStack *errpkg.HttpStack) *models.Session {
 	// Create Session
 	session, err := svc.store.CreateSession(userID)
 	if err != nil { errs.Internal(httpStack, err); return nil }

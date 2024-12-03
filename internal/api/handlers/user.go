@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"net/http"
-"time"
+	"time"
 
-errs "github.com/kye-gregory/koicards-api/internal/errors"
+	errs "github.com/kye-gregory/koicards-api/internal/errors"
 	"github.com/kye-gregory/koicards-api/internal/models"
 	"github.com/kye-gregory/koicards-api/internal/services"
 	userVO "github.com/kye-gregory/koicards-api/internal/valueobjects/user"
@@ -95,13 +95,13 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	)
 
 	// Attempt Login
-	httpStack := errpkg.NewHttpStack().WithStatus(http.StatusUnauthorized)
+	httpStack := errpkg.NewHttpStack().WithStatus(http.StatusBadRequest)
 	userID := h.svc.AttemptLogin(*loginInfo, httpStack)
 	if returnHttpError(w, httpStack) { return }
 
 	// Create Session
 	httpStack.WithStatus(http.StatusInternalServerError)
-	session := h.auth.CreateLoginSession(*userID, httpStack)
+	session := h.auth.CreateSession(*userID, httpStack)
 	if returnHttpError(w, httpStack) { return }
 	
 	// Set Session Cookie
