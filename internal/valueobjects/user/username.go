@@ -30,6 +30,10 @@ func NewUsername(value string, errStack *errpkg.HttpStack) (*Username) {
 	return nil
 }
 
+func NewUsernameFromDB(value string) *Username {
+	return &Username {value: value}
+}
+
 func (u Username) MarshalJSON() ([]byte, error) {
 	return json.Marshal(u.value)
 }

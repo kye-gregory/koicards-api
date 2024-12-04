@@ -30,6 +30,10 @@ func NewPassword(value string, errStack *errpkg.HttpStack) *Password {
 	return nil
 }
 
+func NewPasswordFromDB(value string) *Password {
+	return &Password {hashed: value}
+}
+
 func (p Password) String() string {
 	return p.hashed
 }

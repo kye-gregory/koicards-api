@@ -23,6 +23,10 @@ func NewEmail(value string, errStack *errpkg.HttpStack) (*Email) {
 	return nil
 }
 
+func NewEmailFromDB(value string) *Email {
+	return &Email {value: value}
+}
+
 func (e Email) MarshalJSON() ([]byte, error) {
 	return json.Marshal(e.value)
 }
