@@ -3,13 +3,14 @@ package mail
 import (
 	"bytes"
 	"net/smtp"
+	"os"
 )
 
 func Send(subject string, body bytes.Buffer, to []string) error {
 	auth := smtp.PlainAuth(
 		"",
 		"kyegregory001@gmail.com",
-		"yazlazxbrbfzcxfg", // gmail app password
+		os.Getenv("MAIL_APP_PASSWORD"),
 		"smtp.gmail.com",
 	)
 
