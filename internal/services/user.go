@@ -57,7 +57,7 @@ func (svc *UserService) SetEmailAsVerified(email string, errStack *errpkg.HttpSt
 }
 
 
-func (svc *UserService) AttemptLogin(loginInfo models.Login, errStack *errpkg.HttpStack) int {
+func (svc *UserService) AttemptLogin(loginInfo models.Login, errStack *errpkg.HttpStack) (int, string) {
 	// Initialise Error
 	structuredErr := errs.LoginInvalidDetails("incorrect username or password")
 
@@ -68,12 +68,12 @@ func (svc *UserService) AttemptLogin(loginInfo models.Login, errStack *errpkg.Ht
 	if (loginInfo.Username != "") { getUserFunc = svc.store.GetUserByUsername}
 
 	user, err := getUserFunc(loginInfo.Email + loginInfo.Username)
-	if err != nil { errs.Internal(errStack, err); return 0 }
-	if user == nil { errStack.Add(structuredErr); return 0 }
+	if err != nil { errs.Internal(errStack, err); return 0, "" }
+	if user == nil { errStack.Add(structuredErr); return 0, "" }
 
 	// Check Password
 	isUser := auth.VerifyPassword(user.Password.String(), loginInfo.Password)
-	if ( !isUser ) { errStack.Add(structuredErr); return 0 }
+	if ( !isUser ) { errStack.Add(structuredErr); return 0, "" }
 
-	return user.ID
+	return user.ID, user.Username.String()
 }

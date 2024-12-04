@@ -96,7 +96,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Attempt Login
 	httpStack := errpkg.NewHttpStack().WithStatus(http.StatusBadRequest)
-	userID := h.svc.AttemptLogin(*loginInfo, httpStack)
+	userID, username := h.svc.AttemptLogin(*loginInfo, httpStack)
 	if returnHttpError(w, httpStack) { return }
 
 	// Create Session
