@@ -99,6 +99,13 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	userID, username := h.svc.AttemptLogin(*loginInfo, httpStack)
 	if returnHttpError(w, httpStack) { return }
 
+	// Check For Existing Session
+	httpStack.WithStatus(http.StatusForbidden)
+	structuredErr := errs.LoginAlreadyLoggedIn("You are already logged in.")
+	_, err := r.Cookie("session_id")
+	if err == nil { httpStack.Add(structuredErr) }
+	if returnHttpError(w, httpStack) { return }
+
 	// Create Session
 	httpStack.WithStatus(http.StatusInternalServerError)
 	session := h.auth.CreateSession(userID, httpStack)
@@ -109,8 +116,19 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Name:     "session_id",
 		Value:    session.ID,
 		Path:     "/",
-		Expires:  session.Expiry,
+		Expires:  time.Now().Add(time.Duration(session.ExpiryInNS)),
 		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
+	// Set CSRF Token Cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "csrf_token",
+		Value:    session.Data.CSRFToken,
+		Path:     "/",
+		Expires:  time.Now().Add(time.Duration(session.ExpiryInNS)),
+		HttpOnly: false,
 		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 	})
@@ -137,8 +155,14 @@ func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		Value:    "",
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
-		HttpOnly: true,
-		Secure:   true,
+	})
+
+	// Set CSRF Token Cookie To Blank
+	http.SetCookie(w, &http.Cookie{
+		Name:     "csrf_token",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
 	})
 	
 	// Return Success

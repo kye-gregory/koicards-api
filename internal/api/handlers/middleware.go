@@ -45,16 +45,23 @@ func RequestLoggerMiddleware(next http.HandlerFunc) http.HandlerFunc {
 func AuthoriseMiddleware(auth *services.AuthService) func(http.HandlerFunc) http.HandlerFunc {
     return func(next http.HandlerFunc) http.HandlerFunc {
         return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Get Cookie
+			// Define Error Handling
 			httpStack := errpkg.NewHttpStack().WithStatus(http.StatusUnauthorized)
-			structuredErr := errs.AuthUnauthorised("invalid session id")
+			
+			// Get Session Cookie
+			structuredErr := errs.LogoutAlreadyLoggedOut("You are already logged out.")
 			sessionCookie, err := r.Cookie("session_id")
 			if err != nil { httpStack.Add(structuredErr) }
+
+			// Get CSRF Token Cookie
+			csrfToken := r.Header.Get("X-CSRF-Token")
+			
+			// Return Errors
 			if returnHttpError(w, httpStack) { return }
 
 			// Check Database
 			httpStack.WithStatus(http.StatusUnauthorized)
-			auth.VerifySession(sessionCookie.Value, httpStack)
+			auth.VerifySession(sessionCookie.Value, csrfToken, httpStack)
 			if returnHttpError(w, httpStack) { return }
 
 			next.ServeHTTP(w,r)
