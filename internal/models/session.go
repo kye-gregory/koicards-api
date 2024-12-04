@@ -4,16 +4,15 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	userVO "github.com/kye-gregory/koicards-api/internal/valueobjects/user"
 )
 
 type Session struct {
 	ID   string
-	User userVO.ID
+	User int
 	Expiry time.Time
 }
 
-func NewSession(userID userVO.ID) *Session {
+func NewSession(userID int) *Session {
 	return &Session{
 		ID: uuid.New().String(),
 		User: userID,

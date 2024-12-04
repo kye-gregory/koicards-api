@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/kye-gregory/koicards-api/internal/models"
-	userVO "github.com/kye-gregory/koicards-api/internal/valueobjects/user"
 )
 
 type SessionStore struct {
@@ -15,7 +14,7 @@ func NewSessionStore() *SessionStore {
 	return &SessionStore{sessions: make([]models.Session, 0)}
 }
 
-func (store *SessionStore) CreateSession(userID userVO.ID) (*models.Session, error) {
+func (store *SessionStore) CreateSession(userID int) (*models.Session, error) {
 	session := models.NewSession(userID)
 	store.sessions = append(store.sessions, *session)
 	return session, nil

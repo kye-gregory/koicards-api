@@ -2,7 +2,6 @@ package store
 
 import (
 	"github.com/kye-gregory/koicards-api/internal/models"
-	userVO "github.com/kye-gregory/koicards-api/internal/valueobjects/user"
 )
 
 type Database struct {
@@ -30,7 +29,7 @@ type UserStore interface {
 
 
 type SessionStore interface {
-    CreateSession(userID userVO.ID) (*models.Session, error)
+    CreateSession(userID int) (*models.Session, error)
     DeleteSession(sessionID string) error
     VerifySession(sessionID string) (bool, error)
 }

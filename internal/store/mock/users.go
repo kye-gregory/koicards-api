@@ -5,16 +5,14 @@ import (
 	"slices"
 
 	"github.com/kye-gregory/koicards-api/internal/models"
-	"github.com/kye-gregory/koicards-api/internal/valueobjects/user"
-	userVO "github.com/kye-gregory/koicards-api/internal/valueobjects/user"
 )
 
 type UserStore struct {
-	users map[userVO.ID]*models.User
+	users map[int]*models.User
 }
 
 func NewUserStore() *UserStore {
-	return &UserStore{users: make(map[userVO.ID]*models.User)}
+	return &UserStore{users: make(map[int]*models.User)}
 }
 
 func (store *UserStore) IsEmailRegistered(email string) (bool, error) {
@@ -36,7 +34,7 @@ func (store *UserStore) IsUsernameRegistered(username string) (bool, error) {
 }
 
 func (store *UserStore) CreateUser(u *models.User) error {
-	id := *user.NewID()
+	id := len(store.users)
 	u.ID = id
 	store.users[id] = u
 	return nil

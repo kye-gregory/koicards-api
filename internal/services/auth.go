@@ -13,7 +13,6 @@ import (
 	"github.com/kye-gregory/koicards-api/internal/mail"
 	"github.com/kye-gregory/koicards-api/internal/models"
 	"github.com/kye-gregory/koicards-api/internal/store"
-	userVO "github.com/kye-gregory/koicards-api/internal/valueobjects/user"
 	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 )
 
@@ -84,7 +83,7 @@ func (svc *AuthService) VerifyEmail(tokenString string, httpStack *errpkg.HttpSt
 }
 
 
-func (svc *AuthService) CreateSession(userID userVO.ID, httpStack *errpkg.HttpStack) *models.Session {
+func (svc *AuthService) CreateSession(userID int, httpStack *errpkg.HttpStack) *models.Session {
 	// Create Session
 	session, err := svc.store.CreateSession(userID)
 	if err != nil { errs.Internal(httpStack, err); return nil }

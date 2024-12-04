@@ -6,7 +6,6 @@ import (
 	errs "github.com/kye-gregory/koicards-api/internal/errors"
 	"github.com/kye-gregory/koicards-api/internal/models"
 	"github.com/kye-gregory/koicards-api/internal/store"
-	userVO "github.com/kye-gregory/koicards-api/internal/valueobjects/user"
 	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 )
 
@@ -58,18 +57,18 @@ func (svc *UserService) SetEmailAsVerified(email string, errStack *errpkg.HttpSt
 }
 
 
-func (svc *UserService) AttemptLogin(loginInfo models.Login, errStack *errpkg.HttpStack) *userVO.ID {
+func (svc *UserService) AttemptLogin(loginInfo models.Login, errStack *errpkg.HttpStack) int {
 	// Initialise Error
 	structuredErr := errs.LoginInvalidDetails("incorrect username or password")
 
 	// Get User
 	user, err := svc.store.GetUser(loginInfo.Identifier)
-	if err != nil { errs.Internal(errStack, err); return nil }
-	if user == nil { errStack.Add(structuredErr); return nil }
+	if err != nil { errs.Internal(errStack, err); return 0 }
+	if user == nil { errStack.Add(structuredErr); return 0 }
 
 	// Check Password
 	isUser := auth.VerifyPassword(user.Password.String(), loginInfo.Password)
-	if ( !isUser ) { errStack.Add(structuredErr); return nil }
+	if ( !isUser ) { errStack.Add(structuredErr); return 0 }
 
-	return &user.ID
+	return user.ID
 }

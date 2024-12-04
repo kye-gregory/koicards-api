@@ -101,7 +101,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Create Session
 	httpStack.WithStatus(http.StatusInternalServerError)
-	session := h.auth.CreateSession(*userID, httpStack)
+	session := h.auth.CreateSession(userID, httpStack)
 	if returnHttpError(w, httpStack) { return }
 	
 	// Set Session Cookie
