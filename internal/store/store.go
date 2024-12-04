@@ -23,7 +23,8 @@ type UserStore interface {
     IsEmailRegistered(email string) (bool, error)
     CreateUser(user *models.User) error
     ActivateUser(email string) error 
-    GetUser(identifier string) (*models.User, error)
+    GetUserByEmail(identifier string) (*models.User, error)
+    GetUserByUsername(identifier string) (*models.User, error)
     GetAllUsers() ([]*models.User, error)
 }
 

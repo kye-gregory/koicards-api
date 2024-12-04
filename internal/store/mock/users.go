@@ -11,9 +11,11 @@ type UserStore struct {
 	users map[int]*models.User
 }
 
+
 func NewUserStore() *UserStore {
 	return &UserStore{users: make(map[int]*models.User)}
 }
+
 
 func (store *UserStore) IsEmailRegistered(email string) (bool, error) {
 	for _, v := range store.users {
@@ -24,6 +26,7 @@ func (store *UserStore) IsEmailRegistered(email string) (bool, error) {
 	return false, nil
 }
 
+
 func (store *UserStore) IsUsernameRegistered(username string) (bool, error) {
 	for _, v := range store.users {
 		if (v.Username.String() == username) {
@@ -33,6 +36,7 @@ func (store *UserStore) IsUsernameRegistered(username string) (bool, error) {
 	return false, nil
 }
 
+
 func (store *UserStore) CreateUser(u *models.User) error {
 	id := len(store.users)
 	u.ID = id
@@ -41,24 +45,35 @@ func (store *UserStore) CreateUser(u *models.User) error {
 }
 
 
-func (store *UserStore) ActivateUser(email string) error {
-	user, err := store.GetUser(email)
+func (store *UserStore) VerifyEmail(email string) error {
+	user, err := store.GetUserByEmail(email)
 	if (err != nil) { return err }
 
 	user.IsVerified = true
 	return nil
 }
 
-func (store *UserStore) GetUser(identifier string) (*models.User, error) {
+
+func (store *UserStore) GetUserByEmail(email string) (*models.User, error) {
 	for _, user := range store.users {
-		hasEmail := (user.Email.String() == identifier)
-		hasUsername := (user.Username.String() == identifier)
-		if (!hasEmail && !hasUsername) { continue }
+		if (user.Email.String() != email) { continue }
 		return user, nil
 	}
 
 	return nil, nil
 }
+
+
+func (store *UserStore) GetUserByUsername(username string) (*models.User, error) {
+	for _, user := range store.users {
+		if (user.Username.String() != username) { continue }
+		return user, nil
+	}
+
+	return nil, nil
+}
+
+
 
 func (store *UserStore) GetAllUsers() ([]*models.User, error) {
 	return slices.Collect(maps.Values(store.users)), nil

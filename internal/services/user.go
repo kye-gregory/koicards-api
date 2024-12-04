@@ -62,7 +62,12 @@ func (svc *UserService) AttemptLogin(loginInfo models.Login, errStack *errpkg.Ht
 	structuredErr := errs.LoginInvalidDetails("incorrect username or password")
 
 	// Get User
-	user, err := svc.store.GetUser(loginInfo.Identifier)
+// NOTE: Assumes user isn't logging in with both email and username
+	var getUserFunc func(string) (*models.User, error)
+	if (loginInfo.Email != "") { getUserFunc = svc.store.GetUserByEmail} else
+	if (loginInfo.Username != "") { getUserFunc = svc.store.GetUserByUsername}
+
+	user, err := getUserFunc(loginInfo.Email + loginInfo.Username)
 	if err != nil { errs.Internal(errStack, err); return 0 }
 	if user == nil { errStack.Add(structuredErr); return 0 }
 

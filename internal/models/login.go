@@ -1,21 +1,17 @@
 package models
 
 type Login struct {
-	Identifier string `json:"identifier"`
-	Password   string `json:"-"`
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Password string `json:"-"`
 }
 
-func NewLogin(email string, username string, password string) *Login {
-	// Determine Identifier
-	identifier := email
-	if username != "" {
-		identifier = username
-	}
-
+func NewLogin(email, username, password string) *Login {
 	// Create Struct
 	login := Login{
-		Identifier: identifier,
-		Password:   password,
+		Email:    email,
+		Username: username,
+		Password: password,
 	}
 
 	// Return
