@@ -52,7 +52,7 @@ func (svc *UserService) RegisterUser(u *models.User, errStack *errpkg.HttpStack)
 
 func (svc *UserService) SetEmailAsVerified(email string, errStack *errpkg.HttpStack) {
 	// Update Store
-	err := svc.store.ActivateUser(email)
+	err := svc.store.VerifyEmail(email)
 	if err != nil { errs.Internal(errStack, err); return }
 }
 
@@ -62,7 +62,7 @@ func (svc *UserService) AttemptLogin(loginInfo models.Login, errStack *errpkg.Ht
 	structuredErr := errs.LoginInvalidDetails("incorrect username or password")
 
 	// Get User
-// NOTE: Assumes user isn't logging in with both email and username
+	// NOTE: Assumes user isn't logging in with both email and username
 	var getUserFunc func(string) (*models.User, error)
 	if (loginInfo.Email != "") { getUserFunc = svc.store.GetUserByEmail} else
 	if (loginInfo.Username != "") { getUserFunc = svc.store.GetUserByUsername}
