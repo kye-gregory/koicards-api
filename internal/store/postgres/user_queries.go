@@ -21,7 +21,7 @@ const (
 
 	qVerifyUserEmail = `
 	UPDATE user_account
-	SET is_email_verified = 1
+	SET is_email_verified = true
 	WHERE email = $1`
 
 	qGetUserByEmail = `
@@ -32,7 +32,7 @@ const (
 	qGetUserByUsername = `
 	SELECT id, email, username, password_hash, is_email_verified, created_at, account_status
 	FROM user_account
-	WHERE email = $1`
+	WHERE username = $1`
 
 	qGetAllUsers = `
 	SELECT id, email, username, password_hash, is_email_verified, created_at, account_status
