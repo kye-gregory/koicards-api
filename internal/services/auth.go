@@ -13,6 +13,7 @@ import (
 	"github.com/kye-gregory/koicards-api/internal/mail"
 	"github.com/kye-gregory/koicards-api/internal/models"
 	"github.com/kye-gregory/koicards-api/internal/store"
+	"github.com/kye-gregory/koicards-api/pkg/auth"
 	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 )
 
@@ -51,7 +52,7 @@ func (svc *AuthService) SendEmailVerification(email string, username string, htt
 	if err != nil { errs.Internal(httpStack, err); return }
 
 	// Create Template & Send
-	t.Execute(&body, struct{VerificationLink string; Username string}{VerificationLink: "localhost:8080/api/v1/accounts/verify?token=" + signedToken, Username: username})
+	t.Execute(&body, struct{VerificationLink string; Username string}{VerificationLink: "localhost:8080/api/v1/account/verify?token=" + signedToken, Username: username})
 	err = mail.Send("KoiCards - Verify Email", body, to)
 	if err != nil { errs.Internal(httpStack, err); return }
 }
@@ -84,8 +85,12 @@ func (svc *AuthService) VerifyEmail(tokenString string, httpStack *errpkg.HttpSt
 
 
 func (svc *AuthService) CreateSession(userID int, httpStack *errpkg.HttpStack) *models.Session {
-	// Create Session
-	session, err := svc.store.CreateSession(userID)
+	// Generate CSRF Token
+	csrfToken, err := auth.GenerateCSRFToken()
+	if err != nil { errs.Internal(httpStack, err); return nil }
+
+	session := models.NewSession(*models.NewSessionData(userID, csrfToken))
+	err = svc.store.CreateSession(session)
 	if err != nil { errs.Internal(httpStack, err); return nil }
 
 	return session
@@ -99,9 +104,13 @@ func (svc *AuthService) DeleteSession(sessionID string, httpStack *errpkg.HttpSt
 }
 
 
-func (svc *AuthService) VerifySession(sessionID string, httpStack *errpkg.HttpStack) {
-	structuredErr := errs.AuthUnauthorised("invalid session id")
-	exists, err := svc.store.VerifySession(sessionID)
+func (svc *AuthService) VerifySession(sessionID string, csrfToken string, httpStack *errpkg.HttpStack) {
+	// Get Session Data
+	data, err := svc.store.GetSessionData(sessionID)
 	if err != nil { errs.Internal(httpStack, err); return }
-	if !exists { httpStack.Add(structuredErr) }
+	
+	// Compare CSRF Token
+	structuredErr := errs.AuthUnauthorised("CSRF Token does not match")
+	valid := data.CSRFToken == csrfToken
+	if !valid { httpStack.Add(structuredErr); return }
 }
