@@ -47,11 +47,11 @@ func run(
     dbPort := os.Getenv("POSTGRES_PORT")
     dbUser := os.Getenv("POSTGRES_USER")
     dbPassword := os.Getenv("POSTGRES_PASSWORD")
-    dbName := os.Getenv("POSTGRES_NAME")
+    dbName := os.Getenv("POSTGRES_DB")
 	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUser, dbPassword, dbHost, dbPort, dbName)
 	dbPool, err := pgxpool.New(context.Background(), dbURL)
 	if err != nil { errs.Internal(errStack, err); return errStack }
-	log.Printf("Connecting to DB at %s:%s as %s\n", dbHost, dbPort, dbUser)
+	log.Printf("Connecting to %s at %s:%s as %s\n", dbName, dbHost, dbPort, dbUser)
 	defer dbPool.Close()
 
 	// Initialize Redis (Session Database)
