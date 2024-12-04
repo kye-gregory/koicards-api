@@ -14,10 +14,9 @@ func NewSessionStore() *SessionStore {
 	return &SessionStore{sessions: make([]models.Session, 0)}
 }
 
-func (store *SessionStore) CreateSession(userID int) (*models.Session, error) {
-	session := models.NewSession(userID)
+func (store *SessionStore) CreateSession(session *models.Session) error {
 	store.sessions = append(store.sessions, *session)
-	return session, nil
+	return nil
 }
 
 func (store *SessionStore) DeleteSession(sessionID string) error {
@@ -31,10 +30,10 @@ func (store *SessionStore) DeleteSession(sessionID string) error {
 }
 
 
-func (store *SessionStore) VerifySession(sessionID string) (bool, error) {
+func (store *SessionStore) GetSessionData(sessionID string) (*models.SessionData, error) {
 	for _, session := range store.sessions {
 		if (session.ID != sessionID) { continue }
-		return true, nil
+		return &session.Data, nil
 	}
-	return false, nil
+	return nil, nil
 }

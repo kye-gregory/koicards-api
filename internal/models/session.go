@@ -5,17 +5,28 @@ import (
 
 	"github.com/google/uuid"
 )
-
 type Session struct {
 	ID   string
-	User int
-	Expiry time.Time
+	Data SessionData
+	ExpiryInNS int64
 }
 
-func NewSession(userID int) *Session {
+type SessionData struct {
+	UserID int
+	CSRFToken string
+}
+
+func NewSession(data SessionData) *Session {
 	return &Session{
 		ID: uuid.New().String(),
-		User: userID,
-		Expiry: time.Now().Add(time.Hour * 24),
+		Data: data,
+		ExpiryInNS: time.Hour.Nanoseconds() * 24,
+	}
+}
+
+func NewSessionData(userID int, csrfToken string) *SessionData {
+	return &SessionData{
+		UserID: userID,
+		CSRFToken: csrfToken,
 	}
 }
