@@ -53,15 +53,19 @@ func (store *UserStore) VerifyEmail(email string) error {
 
 func (store *UserStore) getUser (query string, selector string) (*models.User, error) {
 	var user models.User
+	var email, username, password string
 	err := store.db.QueryRow(context.Background(), query, selector).Scan(
 		&user.ID,
-		&user.Email,
-		&user.Username,
-		&user.Password,
+		&email,
+		&username,
+		&password,
 		&user.IsVerified,
 		&user.CreatedAt,
 		&user.Status,
 	)
+	user.Email = *userVO.NewEmailFromDB(email)
+	user.Username = *userVO.NewUsernameFromDB(username)
+	user.Password = *userVO.NewPasswordFromDB(password)
 
 	if err != nil { return nil, err }
 	return &user, nil
