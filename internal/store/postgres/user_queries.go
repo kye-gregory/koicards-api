@@ -5,7 +5,7 @@ const (
 	SELECT EXISTS (
         SELECT 1
         FROM user_account
-        WHERE username = $1
+        WHERE email = $1
     )`
 
 	qCheckUsernameExists = `
