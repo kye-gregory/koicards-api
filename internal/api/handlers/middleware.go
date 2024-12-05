@@ -49,7 +49,7 @@ func AuthoriseMiddleware(auth *services.AuthService) func(http.HandlerFunc) http
 			httpStack := errpkg.NewHttpStack().WithStatus(http.StatusUnauthorized)
 			
 			// Get Session Cookie
-			structuredErr := errs.LogoutAlreadyLoggedOut("You are already logged out.")
+			structuredErr := errs.SessionAlreadyLoggedOut("You are already logged out.")
 			sessionCookie, err := r.Cookie("session_id")
 			if err != nil { httpStack.Add(structuredErr) }
 

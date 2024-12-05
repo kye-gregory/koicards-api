@@ -59,7 +59,7 @@ func (svc *UserService) SetEmailAsVerified(email string, errStack *errpkg.HttpSt
 
 func (svc *UserService) AttemptLogin(loginInfo models.Login, errStack *errpkg.HttpStack) (int, string) {
 	// Initialise Error
-	structuredErr := errs.LoginInvalidDetails("incorrect username or password")
+	structuredErr := errs.SessionInvalidLoginDetails("incorrect username or password")
 
 	// Get User
 	// NOTE: Assumes user isn't logging in with both email and username

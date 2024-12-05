@@ -45,15 +45,13 @@ var EmailInUseCode = *errpkg.NewErrorCode("email_in_use")
 func EmailInvalid(message string) errpkg.StructuredError { return fieldError(EmailInvalidCode, message, emailField) }
 func EmailInUse(message string) errpkg.StructuredError { return fieldError(EmailInUseCode, message, emailField) }
 
-// Login Errors
-var LoginInvalidDetailsCode = *errpkg.NewErrorCode("login_invalid_details")
-var LoginAlreadyLoggedInCode = *errpkg.NewErrorCode("login_already_logged_in")
-func LoginInvalidDetails(message string) errpkg.StructuredError { return plainError(LoginInvalidDetailsCode, message) }
-func LoginAlreadyLoggedIn(message string) errpkg.StructuredError { return plainError(LoginAlreadyLoggedInCode, message) }
-
-// Logout Errors
-var LogoutAlreadyLoggedOutCode = *errpkg.NewErrorCode("logout_not_logged_in")
-func LogoutAlreadyLoggedOut(message string) errpkg.StructuredError { return plainError(LogoutAlreadyLoggedOutCode, message) }
+// Session Errors
+var SessionInvalidLoginDetailsCode = *errpkg.NewErrorCode("session_invalid_login_details")
+var SessionAlreadyLoggedInCode = *errpkg.NewErrorCode("session_already_logged_in")
+var SessionAlreadyLoggedOutCode = *errpkg.NewErrorCode("session_already_logged_out")
+func SessionInvalidLoginDetails(message string) errpkg.StructuredError { return plainError(SessionAlreadyLoggedInCode, message) }
+func SessionAlreadyLoggedIn(message string) errpkg.StructuredError { return plainError(SessionAlreadyLoggedInCode, message) }
+func SessionAlreadyLoggedOut(message string) errpkg.StructuredError { return plainError(SessionAlreadyLoggedOutCode, message) }
 
 // Auth Errors
 var AuthInvalidTokenCode = *errpkg.NewErrorCode("auth_invalid_token")

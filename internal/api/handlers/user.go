@@ -101,7 +101,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Check For Existing Session
 	httpStack.WithStatus(http.StatusForbidden)
-	structuredErr := errs.LoginAlreadyLoggedIn("You are already logged in.")
+	structuredErr := errs.SessionAlreadyLoggedIn("You are already logged in.")
 	_, err := r.Cookie("session_id")
 	if err == nil { httpStack.Add(structuredErr) }
 	if returnHttpError(w, httpStack) { return }
