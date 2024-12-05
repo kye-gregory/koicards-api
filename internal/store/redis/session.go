@@ -22,7 +22,6 @@ func (store *SessionStore) CreateSession(session *models.Session) error {
     if err != nil {  return err  }
 
 	// Update DB
-	// key := "user_sessions:" + (string)(session.Data.UserID)
 	err = store.db.Set("session:"+session.ID, data, time.Duration(session.ExpiryInNS)).Err()
 	if err != nil {  return err  }
 
@@ -31,6 +30,7 @@ func (store *SessionStore) CreateSession(session *models.Session) error {
 
 
 func (store *SessionStore) DeleteSession(sessionID string) error {
+	// Delete Session
 	return store.db.Del(sessionID).Err()
 }
 
@@ -45,5 +45,6 @@ func (store *SessionStore) GetSessionData(sessionID string) (*models.SessionData
     err = json.Unmarshal([]byte(val), &data)
     if err != nil { return nil, err }
 
+	// Return Session Data
 	return &data, nil
 }

@@ -17,13 +17,13 @@ import (
 	errpkg "github.com/kye-gregory/koicards-api/pkg/debug/errors"
 )
 
-var secretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
+var jwtSecretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 
 type AuthService struct {
 	store store.SessionStore
 }
 
-// Constructor function for UserService
+
 func NewAuthService(s store.SessionStore) *AuthService {
 	return &AuthService{store: s}
 }
@@ -42,7 +42,7 @@ func (svc *AuthService) SendEmailVerification(email string, username string, htt
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Sign the token with the secret key
-	signedToken, err := token.SignedString(secretKey)
+	signedToken, err := token.SignedString(jwtSecretKey)
 	if err != nil { errs.Internal(httpStack, err); return }
 
 	// Setup Email
@@ -65,7 +65,7 @@ func (svc *AuthService) VerifyEmail(tokenString string, httpStack *errpkg.HttpSt
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return secretKey, nil
+		return jwtSecretKey, nil
 	})
 
 	// Check internal errors
@@ -89,6 +89,7 @@ func (svc *AuthService) CreateSession(userID int, httpStack *errpkg.HttpStack) *
 	csrfToken, err := auth.GenerateCSRFToken()
 	if err != nil { errs.Internal(httpStack, err); return nil }
 
+	// Create And Store Session
 	session := models.NewSession(*models.NewSessionData(userID, csrfToken))
 	err = svc.store.CreateSession(session)
 	if err != nil { errs.Internal(httpStack, err); return nil }

@@ -12,7 +12,6 @@ type ErrorStack interface {
 	IsEmpty() bool
 	Error() string
 	InternalError(err StructuredError)
-	Return() error
 }
 
 type Stack struct {
@@ -64,12 +63,4 @@ func (s *Stack) Error() string {
 func (s *Stack) InternalError(err StructuredError) {
 	s.Clear()
 	s.Errors = []StructuredError{err}
-}
-
-// Returns either error or nil
-func (s *Stack) Return() error {
-	if len(s.Errors) > 0 {
-		return s
-	}
-	return nil
 }

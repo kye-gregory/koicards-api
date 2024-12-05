@@ -6,14 +6,14 @@ import (
 	"github.com/google/uuid"
 )
 type Session struct {
-	ID   string
-	Data SessionData
-	ExpiryInNS int64
+	ID   		string		`json:"id"`
+	Data 		SessionData	`json:"data"`
+	ExpiryInNS 	int64		`json:"expiry_in_ns"`
 }
 
 type SessionData struct {
-	UserID int
-	CSRFToken string
+	UserID 	 	int		`json:"user_id"`
+	CSRFToken	string	`json:"csrf_token"`
 }
 
 func NewSession(data SessionData) *Session {

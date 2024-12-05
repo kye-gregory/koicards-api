@@ -18,12 +18,13 @@ func (r *route) calc(method, endpoint string) string {
 }
 
 func RegisterRoutes(app *App, mux *http.ServeMux) http.Handler {
+	// Create Sub-Router
 	route := route {
 		version: "v1",
 		prefix: "",
 	}
 
-	// Define Handles & Middleware
+	// Define Handlers & Middleware
 	userHandler := h.NewUserHandler(app.UserService, app.AuthService)
 	authMiddleware := h.AuthoriseMiddleware(app.AuthService)
 
@@ -33,9 +34,8 @@ func RegisterRoutes(app *App, mux *http.ServeMux) http.Handler {
 	// Account Routes
 	route.prefix = "account"
 	mux.HandleFunc(route.calc("POST", "register"),	userHandler.RegisterUser)
-	mux.HandleFunc(route.calc("POST", "login"),	userHandler.Login)
 	mux.HandleFunc(route.calc("GET", "verify"),	userHandler.VerifyEmail)
-
+	mux.HandleFunc(route.calc("POST", "login"),	userHandler.Login)
 	mux.HandleFunc(route.calc("POST", "logout"), authMiddleware(userHandler.Logout))
 
 	// Add Global Middleware

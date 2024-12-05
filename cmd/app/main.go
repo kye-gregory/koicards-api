@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sync"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -35,8 +34,6 @@ func run(
 	time.Local = time.UTC
 	log.SetOutput(stderr)
 	errStack := errpkg.NewStack()
-	var wg sync.WaitGroup
-	wg.Add(1)
 	
 	// Watch System Interrupt & Kill Signals
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill)
@@ -76,8 +73,6 @@ func run(
 	}
 
 	// Run Server
-	wg.Done()
-	wg.Wait()
 	go func() {
 		log.Println("Listening for requests on", httpServer.Addr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -99,7 +94,7 @@ func run(
 	}
 
 	// Return Any Errors
-	return errStack.Return()
+	return errStack
 }
 
 

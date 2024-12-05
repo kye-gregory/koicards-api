@@ -13,7 +13,7 @@ type UserService struct {
 	store 	store.UserStore
 }
 
-// Constructor function for UserService
+
 func NewUserService(s store.UserStore) *UserService {
 	return &UserService{store: s}
 }
@@ -29,7 +29,6 @@ func (svc *UserService) GetAllUsers(errStack *errpkg.HttpStack) ([]*models.User)
 }
 
 
-// Calls store to register database
 func (svc *UserService) RegisterUser(u *models.User, errStack *errpkg.HttpStack) {
 	// Check If Email Is Already Registered
 	exists, err := svc.store.IsEmailRegistered(u.Email.String())

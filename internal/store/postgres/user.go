@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kye-gregory/koicards-api/internal/models"
@@ -19,39 +18,48 @@ func NewUserStore(db *pgxpool.Pool) *UserStore {
 
 
 func (store *UserStore) IsUsernameRegistered(username string) (bool, error) {
+	// Run Query & Scan Data
 	var exists bool
 	err := store.db.QueryRow(context.Background(), qCheckUsernameExists, username).Scan(&exists)
-	if err != nil { return false, err }
 
+	// Check Errors & Return
+	if err != nil { return false, err }
 	return exists, nil
 }
 
 
 func (store *UserStore) IsEmailRegistered(email string) (bool, error) {
+	// Run Query & Scan Data
 	var exists bool
 	err := store.db.QueryRow(context.Background(), qCheckEmailExists, email).Scan(&exists)
-	if err != nil { return false, err }
 
+	// Check Errors & Return
+	if err != nil { return false, err }
 	return exists, nil
 }
 
 
 func (store *UserStore) CreateUser(u *models.User) error {
+	// Run Query
 	_, err := store.db.Exec(context.Background(), qInsertNewUser, u.Email, u.Username, u.Password)
-	if err != nil { return err }
 
+	// Check Errors & Return
+	if err != nil { return err }
 	return nil
 }
 
 
 func (store *UserStore) VerifyEmail(email string) error {
+	// Run Query
 	_, err := store.db.Exec(context.Background(), qVerifyUserEmail, email)
-	if err != nil { return err }
 
+	// Check Errors & Return
+	if err != nil { return err }
 	return nil
 }
 
 func (store *UserStore) getUser (query string, selector string) (*models.User, error) {
+	// Run Query & Scan Data
 	var user models.User
 	var email, username, password string
 	err := store.db.QueryRow(context.Background(), query, selector).Scan(
@@ -63,10 +71,13 @@ func (store *UserStore) getUser (query string, selector string) (*models.User, e
 		&user.CreatedAt,
 		&user.Status,
 	)
+
+	// Assign Struct Values
 	user.Email = *userVO.NewEmailFromDB(email)
 	user.Username = *userVO.NewUsernameFromDB(username)
 	user.Password = *userVO.NewPasswordFromDB(password)
 
+	// Check Errors & Return
 	if err != nil { return nil, err }
 	return &user, nil
 }
@@ -84,12 +95,14 @@ func (store *UserStore) GetUserByUsername(username string) (*models.User, error)
 func (store *UserStore) GetAllUsers() ([]*models.User, error) {
 	// Run Query
 	rows, err := store.db.Query(context.Background(), qGetAllUsers)
-	if err != nil { return nil, fmt.Errorf("failed to query users: %w", err) }
+	if err != nil { return nil, err }
 	defer rows.Close()
 
-	// Create Slice
+	// Create User Slice
 	var users []*models.User
 	for rows.Next() {
+
+		// Scan Data
 		var user models.User
 		var email, username, password string
 		err := rows.Scan(
@@ -101,17 +114,18 @@ func (store *UserStore) GetAllUsers() ([]*models.User, error) {
 			&user.CreatedAt,
 			&user.Status,
 		)
-		if err != nil { return nil, fmt.Errorf("failed to scan user: %w", err) }
+
+		// Check Error
+		if err != nil { return nil, err }
+
+		// Assign Struct Values
 		user.Email = *userVO.NewEmailFromDB(email)
 		user.Username = *userVO.NewUsernameFromDB(username)
 		user.Password = *userVO.NewPasswordFromDB(password)
 		users = append(users, &user)
 	}
 
-	// Final Error Check
-	if rows.Err() != nil {
-		return nil, fmt.Errorf("error iterating rows: %w", rows.Err())
-	}
-
+	// Check Errors & Return
+	if rows.Err() != nil { return nil, rows.Err() }
 	return users, nil
 }

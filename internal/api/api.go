@@ -22,9 +22,6 @@ func NewApp(db *store.Database) *App {
 }
 
 func NewRouter(app *App) http.Handler {
-	// Create Server Mux
 	mux := http.NewServeMux()
-
-	// Setup Routes
 	return RegisterRoutes(app, mux)
 }
