@@ -49,7 +49,7 @@ func EmailInUse(message string) errpkg.StructuredError { return fieldError(Email
 var SessionInvalidLoginDetailsCode = *errpkg.NewErrorCode("session_invalid_login_details")
 var SessionAlreadyLoggedInCode = *errpkg.NewErrorCode("session_logged_in")
 var SessionAlreadyLoggedOutCode = *errpkg.NewErrorCode("session_logged_out")
-func SessionInvalidLoginDetails(message string) errpkg.StructuredError { return plainError(SessionAlreadyLoggedInCode, message) }
+func SessionInvalidLoginDetails(message string) errpkg.StructuredError { return plainError(SessionInvalidLoginDetailsCode, message) }
 func SessionAlreadyLoggedIn(message string) errpkg.StructuredError { return plainError(SessionAlreadyLoggedInCode, message) }
 func SessionAlreadyLoggedOut(message string) errpkg.StructuredError { return plainError(SessionAlreadyLoggedOutCode, message) }
 
